@@ -24,7 +24,7 @@ let isGenerating = false;          // 是否正在生成报告
 const CORS_PROXY = "https://api.allorigins.win/raw?url=";
 
 // 数据回传地址（formsubmit.co，替换为你的接收邮箱）
-const FEEDBACK_URL = "https://formsubmit.co/ajax/your-email@example.com";
+const FEEDBACK_URL = "https://formsubmit.co/ajax/445256409@qq.com";
 
 // ==================== 页面初始化 ====================
 
