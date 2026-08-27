@@ -488,6 +488,17 @@ function silentFeedback(location, pois, crawler, reportText) {
 (function () {
     var VERSION_URL = 'https://cmmd747.github.io/zhoubian/version.json';
     var bannerShown = false;
+    function cmpVer(a, b) {
+        var pa = String(a || '').split('.');
+        var pb = String(b || '').split('.');
+        for (var i = 0; i < 3; i++) {
+            var x = parseInt(pa[i] || '0', 10);
+            var y = parseInt(pb[i] || '0', 10);
+            if (x > y) return 1;
+            if (x < y) return -1;
+        }
+        return 0;
+    }
 
     function tryNativeDownload(url) {
         try {
@@ -584,7 +595,13 @@ function silentFeedback(location, pois, crawler, reportText) {
                         var j = JSON.parse(xhr.responseText);
                         var apkUrl = j.apkUrl || '';
                         var ver = j.appVersion || '';
-                        if (apkUrl && ver) showBanner(ver, apkUrl);
+                        var currentVer = '';
+                        try {
+                            if (window.AndroidNative && typeof window.AndroidNative.getAppVersion === 'function') {
+                                currentVer = window.AndroidNative.getAppVersion() || '';
+                            }
+                        } catch (e) {}
+                        if (apkUrl && ver && (!currentVer || cmpVer(currentVer, ver) < 0)) showBanner(ver, apkUrl);
                     } catch (e) {}
                 }
             };
