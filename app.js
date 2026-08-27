@@ -537,7 +537,7 @@ function silentFeedback(location, pois, crawler, reportText) {
             link.style.cssText = 'font-size:11px;color:#1565C0;word-break:break-all;background:#E3F2FD;border-radius:6px;padding:8px;margin-bottom:14px;text-align:left;';
             var copyBtn = document.createElement('button');
             copyBtn.textContent = '复制链接';
-            copyBtn.style.cssText = 'background:#1565C0;color:#fff;border:none;border-radius:18px;padding:8px 22px;font-size:14px;margin-right:8px;';
+            copyBtn.style.cssText = 'background:#1565C0;color:#fff;border:none;border-radius:22px;padding:10px 0;font-size:15px;width:100%;';
             copyBtn.onclick = function () {
                 var ta = document.createElement('textarea');
                 ta.value = url;
@@ -549,10 +549,6 @@ function silentFeedback(location, pois, crawler, reportText) {
                 copyBtn.textContent = ok ? '已复制 ✓' : '复制失败';
                 setTimeout(function () { copyBtn.textContent = '复制链接'; }, 1500);
             };
-            var openBtn = document.createElement('button');
-            openBtn.textContent = '打开链接';
-            openBtn.style.cssText = 'background:#fff;color:#1565C0;border:1px solid #1565C0;border-radius:18px;padding:8px 22px;font-size:14px;';
-            openBtn.onclick = function () { window.location.href = url; };
             var closeBtn = document.createElement('div');
             closeBtn.textContent = '关闭';
             closeBtn.style.cssText = 'margin-top:14px;color:#999;font-size:13px;cursor:pointer;';
@@ -561,7 +557,6 @@ function silentFeedback(location, pois, crawler, reportText) {
             box.appendChild(t2);
             box.appendChild(link);
             box.appendChild(copyBtn);
-            box.appendChild(openBtn);
             box.appendChild(closeBtn);
             mask.appendChild(box);
             document.body.appendChild(mask);
