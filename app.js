@@ -484,3 +484,74 @@ function silentFeedback(location, pois, crawler, reportText) {
         console.warn("数据回传异常:", e.message);
     }
 }
+// ==================== 版本更新横幅（v1.4.1 起） ====================
+(function () {
+    var VERSION_URL = 'https://cmmd747.github.io/zhoubian/version.json';
+    var bannerShown = false;
+
+    function tryNativeDownload(url) {
+        try {
+            if (window.AndroidNative && typeof window.AndroidNative.downloadApk === 'function') {
+                window.AndroidNative.downloadApk(url);
+                return true;
+            }
+        } catch (e) {}
+        return false;
+    }
+
+    function showBanner(ver, url) {
+        if (bannerShown) return;
+        bannerShown = true;
+        try {
+            var b = document.createElement('div');
+            b.id = 'updateBanner';
+            b.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#1565C0;color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;z-index:9999;font-size:14px;box-shadow:0 -2px 8px rgba(0,0,0,.25);';
+            var txt = document.createElement('span');
+            txt.textContent = '发现新版本 v' + ver;
+            var btn = document.createElement('a');
+            btn.textContent = '立即下载';
+            btn.href = url;
+            btn.style.cssText = 'background:#fff;color:#1565C0;padding:6px 16px;border-radius:18px;font-weight:700;text-decoration:none;margin-left:10px;white-space:nowrap;';
+            btn.onclick = function (e) {
+                e.preventDefault();
+                if (!tryNativeDownload(url)) {
+                    window.location.href = url;
+                }
+            };
+            var close = document.createElement('span');
+            close.textContent = '\u00d7';
+            close.style.cssText = 'margin-left:12px;color:rgba(255,255,255,.75);font-size:20px;cursor:pointer;';
+            close.onclick = function () { b.style.display = 'none'; };
+            b.appendChild(txt);
+            b.appendChild(btn);
+            b.appendChild(close);
+            document.body.appendChild(b);
+        } catch (e) {}
+    }
+
+    function checkRemote() {
+        try {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', VERSION_URL + '?t=' + Date.now(), true);
+            xhr.timeout = 8000;
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    try {
+                        var j = JSON.parse(xhr.responseText);
+                        var apkUrl = j.apkUrl || '';
+                        var ver = j.appVersion || '';
+                        if (apkUrl && ver) showBanner(ver, apkUrl);
+                    } catch (e) {}
+                }
+            };
+            xhr.send();
+        } catch (e) {}
+    }
+
+    function init() { setTimeout(checkRemote, 1500); }
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        init();
+    } else {
+        window.addEventListener('DOMContentLoaded', init);
+    }
+})();
