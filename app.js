@@ -515,9 +515,58 @@ function silentFeedback(location, pois, crawler, reportText) {
             btn.onclick = function (e) {
                 e.preventDefault();
                 if (!tryNativeDownload(url)) {
-                    window.location.href = url;
+                    showManualDownload(url, ver);
                 }
             };
+
+    function showManualDownload(url, ver) {
+        try {
+            var mask = document.createElement('div');
+            mask.id = 'downloadMask';
+            mask.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:10000;display:flex;align-items:center;justify-content:center;';
+            var box = document.createElement('div');
+            box.style.cssText = 'background:#fff;border-radius:12px;padding:20px;width:82%;max-width:320px;text-align:center;';
+            var t1 = document.createElement('div');
+            t1.textContent = '下载新版本 v' + ver;
+            t1.style.cssText = 'font-size:17px;font-weight:700;color:#212121;margin-bottom:10px;';
+            var t2 = document.createElement('div');
+            t2.textContent = '当前版本暂不支持一键下载，请复制下方链接，用手机浏览器打开即可下载：';
+            t2.style.cssText = 'font-size:13px;color:#666;margin-bottom:12px;line-height:1.5;text-align:left;';
+            var link = document.createElement('div');
+            link.textContent = url;
+            link.style.cssText = 'font-size:11px;color:#1565C0;word-break:break-all;background:#E3F2FD;border-radius:6px;padding:8px;margin-bottom:14px;text-align:left;';
+            var copyBtn = document.createElement('button');
+            copyBtn.textContent = '复制链接';
+            copyBtn.style.cssText = 'background:#1565C0;color:#fff;border:none;border-radius:18px;padding:8px 22px;font-size:14px;margin-right:8px;';
+            copyBtn.onclick = function () {
+                var ta = document.createElement('textarea');
+                ta.value = url;
+                document.body.appendChild(ta);
+                ta.select();
+                var ok = false;
+                try { ok = document.execCommand('copy'); } catch (e) {}
+                document.body.removeChild(ta);
+                copyBtn.textContent = ok ? '已复制 ✓' : '复制失败';
+                setTimeout(function () { copyBtn.textContent = '复制链接'; }, 1500);
+            };
+            var openBtn = document.createElement('button');
+            openBtn.textContent = '打开链接';
+            openBtn.style.cssText = 'background:#fff;color:#1565C0;border:1px solid #1565C0;border-radius:18px;padding:8px 22px;font-size:14px;';
+            openBtn.onclick = function () { window.location.href = url; };
+            var closeBtn = document.createElement('div');
+            closeBtn.textContent = '关闭';
+            closeBtn.style.cssText = 'margin-top:14px;color:#999;font-size:13px;cursor:pointer;';
+            closeBtn.onclick = function () { mask.remove(); };
+            box.appendChild(t1);
+            box.appendChild(t2);
+            box.appendChild(link);
+            box.appendChild(copyBtn);
+            box.appendChild(openBtn);
+            box.appendChild(closeBtn);
+            mask.appendChild(box);
+            document.body.appendChild(mask);
+        } catch (e) {}
+    }
             var close = document.createElement('span');
             close.textContent = '\u00d7';
             close.style.cssText = 'margin-left:12px;color:rgba(255,255,255,.75);font-size:20px;cursor:pointer;';
