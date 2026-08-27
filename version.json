@@ -1,1 +1,12 @@
-{"version": 4, "files": ["index.html", "app.js"], "disabled": false, "disabledMessage": "应用服务已停止", "appVersion": "1.4", "note": "v1.4 release"}
+{
+  "version": 5,
+  "files": [
+    "index.html",
+    "app.js"
+  ],
+  "disabled": false,
+  "disabledMessage": "应用服务已停止",
+  "appVersion": "1.4.1",
+  "note": "v1.4.1 release",
+  "apkUrl": "https://github.com/CMMD747/zhoubian/releases/download/v1.4.1/app-release-v1.4.1.apk"
+}
