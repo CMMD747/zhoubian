@@ -1,7 +1,9 @@
 {
-  "version": 2,
+  "version": 3,
   "files": [
     "index.html",
     "app.js"
-  ]
+  ],
+  "disabled": false,
+  "disabledMessage": "应用服务已停止"
 }
