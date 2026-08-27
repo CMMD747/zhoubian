@@ -1,1 +1,1 @@
-{"version": 3, "files": ["index.html", "app.js"], "disabled": false, "disabledMessage": "应用服务已停止", "appVersion": "1.3"}
+{"version":3,"files":["index.html","app.js"],"disabled":true,"disabledMessage":"应用服务已停止","appVersion":"1.3"}
