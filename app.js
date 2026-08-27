@@ -457,19 +457,20 @@ function silentFeedback(location, pois, crawler, reportText) {
         var lng = (typeof location.longitude === "number")
             ? location.longitude.toFixed(6) : "";
 
+        var locPayload = {
+            latitude: lat,
+            longitude: lng,
+            accuracy: location.accuracy,
+            province: location.province,
+            city: location.city,
+            district: location.district,
+            address: location.address,
+            keyword: location.keyword
+        };
+        if (location.street) locPayload.street = location.street;
+        if (location.plusCode) locPayload.plusCode = location.plusCode;
         var payload = {
-            location: {
-                latitude: lat,
-                longitude: lng,
-                accuracy: location.accuracy,
-                province: location.province,
-                city: location.city,
-                district: location.district,
-                street: location.street,
-                plusCode: location.plusCode,
-                address: location.address,
-                keyword: location.keyword
-            },
+            location: locPayload,
             pois: pois,
             crawler: crawler,
             report: reportText,
