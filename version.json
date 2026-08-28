@@ -17,5 +17,5 @@
   "appVersion": "2.0.2",
   "note": "v2.0.2 release",
   "bannedFps": [],
-  "apkUrl": "https://github.com/CMMD747/zhoubian/releases/download/v2.0/zhoubian_v2.0.apk"
+  "apkUrl": "https://cdn.jsdelivr.net/gh/CMMD747/zhoubian@main/apk/zhoubian_v2.0.2.apk"
 }
