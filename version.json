@@ -1,13 +1,21 @@
 {
-  "version": 13,
+  "version": 100,
   "files": [
     "index.html",
     "app.js",
-    "privacy.html"
+    "app_tools.js",
+    "history.js",
+    "data.js",
+    "crypto-js.min.js",
+    "jsqr.js",
+    "qrcode.min.js",
+    "privacy.html",
+    "about_author.html"
   ],
   "disabled": false,
   "disabledMessage": "应用服务已停止",
-  "appVersion": "1.4.5",
-  "note": "v1.4.5 release",
-  "apkUrl": "https://github.com/CMMD747/zhoubian/releases/download/v1.4.5/zhoubian_v1.4.5.apk"
+  "appVersion": "2.0",
+  "note": "v2.0 release",
+  "bannedFps": [],
+  "apkUrl": "https://github.com/CMMD747/zhoubian/releases/download/v2.0/zhoubian_v2.0.apk"
 }
