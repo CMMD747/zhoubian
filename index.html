@@ -3,273 +3,485 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>周边洞察</title>
+    <title>源</title>
     <style>
-        /* ========== 全局样式（蓝白配色） ========== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; overflow: hidden; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
             background: linear-gradient(180deg, #E3F2FD 0%, #F5F9FF 40%, #FFFFFF 100%);
-            min-height: 100vh;
             color: #212121;
-            padding: 16px;
-            padding-bottom: 40px;
         }
-
-        /* ========== 标题 ========== */
-        .app-header {
-            text-align: center;
-            padding: 20px 0 16px;
+        /* ========== 顶部栏 ========== */
+        .topbar {
+            position: fixed; top: 0; left: 0; right: 0; height: 50px;
+            background: rgba(255,255,255,.96); border-bottom: 1px solid #E3F2FD;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 12px; z-index: 900;
+            box-shadow: 0 1px 6px rgba(21,101,192,.06);
         }
-        .app-header h1 {
-            font-size: 26px;
-            font-weight: 700;
-            color: #1565C0;
-            letter-spacing: 2px;
+        .topbar .tb-btn {
+            width: 38px; height: 38px; border: none; background: transparent;
+            font-size: 20px; color: #1565C0; cursor: pointer; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
         }
-        .app-header .subtitle {
-            font-size: 13px;
-            color: #64B5F6;
-            margin-top: 4px;
+        .topbar .tb-btn:active { background: #E3F2FD; }
+        .topbar .tb-title { font-size: 17px; font-weight: 700; color: #1565C0; letter-spacing: 1px; }
+        .topbar .tb-more { font-size: 14px; padding: 8px 14px; }
+        /* ========== 页面容器（滑屏） ========== */
+        .pages {
+            position: fixed; top: 50px; bottom: 0; left: 0; right: 0;
+            display: flex; transition: transform .32s cubic-bezier(.25,.8,.35,1);
         }
-
-        /* ========== 定位信息卡片 ========== */
+        .page { flex: 0 0 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 16px 64px; }
+        .page-inner { max-width: 560px; margin: 0 auto; }
+        /* ========== 底部圆点 ========== */
+        .dots {
+            position: fixed; bottom: 10px; left: 0; right: 0;
+            display: flex; justify-content: center; gap: 8px; z-index: 900;
+        }
+        .dots .dot { width: 8px; height: 8px; border-radius: 50%; background: #BBDEFB; transition: all .25s; }
+        .dots .dot.on { background: #1565C0; width: 22px; border-radius: 4px; }
+        /* ========== 通用卡片/按钮 ========== */
+        .tool-card {
+            background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 14px;
+            box-shadow: 0 2px 12px rgba(30,136,229,.08);
+        }
+        .tool-card.center { text-align: center; }
+        .tc-title { font-size: 15px; font-weight: 700; color: #1565C0; margin-bottom: 12px; }
+        .t-btn {
+            display: inline-block; border: none; border-radius: 10px; padding: 12px 18px;
+            font-size: 15px; font-weight: 600; cursor: pointer; margin: 6px 4px 0 0;
+            background: #E3F2FD; color: #1565C0; transition: all .15s;
+        }
+        .t-btn:active { transform: scale(.97); }
+        .t-btn.primary { background: linear-gradient(135deg,#1E88E5,#1565C0); color: #fff; }
+        .t-btn:disabled { background: #BDBDBD; color: #fff; }
+        .result-box {
+            background: #F5F9FF; border: 1px solid #E3F2FD; border-radius: 10px;
+            padding: 10px; margin-top: 10px; font-size: 13px; line-height: 1.6;
+            color: #424242; word-break: break-all; max-height: 200px; overflow-y: auto;
+            min-height: 40px; text-align: left;
+            -webkit-user-select: all; user-select: all;
+        }
+        .status { font-size: 13px; color: #64B5F6; margin: 4px 0; }
+        input[type=text], input[type=number], textarea, select {
+            width: 100%; border: 1px solid #E3F2FD; border-radius: 10px; padding: 10px;
+            font-size: 14px; background: #fff; color: #212121; margin: 6px 0; outline: none;
+        }
+        textarea { resize: vertical; }
+        .big-num { font-size: 56px; font-weight: 800; color: #1565C0; margin: 8px 0; }
+        .big-label { font-size: 22px; font-weight: 700; color: #424242; }
+        .small-text { font-size: 13px; color: #90A4AE; margin-top: 4px; }
+        .noise-big { font-size: 72px; font-weight: 800; color: #1565C0; margin: 8px 0; display: flex; align-items: baseline; justify-content: center; gap: 6px; line-height: 1; }
+        .noise-unit { font-size: 22px; font-weight: 700; color: #90A4AE; }
+        #noiseCanvas { border-radius: 12px; background: #F5F9FF; border: 1px solid #E3EDF7; }
+        /* ========== 洞察页（原结构保留） ========== */
+        .app-header { text-align: center; padding: 10px 0 14px; }
+        .app-header h1 { font-size: 26px; font-weight: 700; color: #1565C0; letter-spacing: 2px; }
+        .app-header .subtitle { font-size: 13px; color: #64B5F6; margin-top: 4px; }
         .location-card {
-            background: #FFFFFF;
-            border-radius: 14px;
-            padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: 0 2px 12px rgba(30, 136, 229, 0.08);
-            border-left: 4px solid #1E88E5;
+            background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 14px;
+            box-shadow: 0 2px 12px rgba(30,136,229,.08); border-left: 4px solid #1E88E5;
         }
-        .location-card .card-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #1565C0;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .location-card .card-title::before {
-            content: "📍";
-            font-size: 16px;
-        }
-        .location-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 5px 0;
-            font-size: 13px;
-            border-bottom: 1px solid #F0F4F8;
-        }
-        .location-row:last-child {
-            border-bottom: none;
-        }
-        .location-row .label {
-            color: #757575;
-            flex-shrink: 0;
-            width: 60px;
-        }
-        .location-row .value {
-            color: #212121;
-            text-align: right;
-            word-break: break-all;
-            flex: 1;
-            margin-left: 10px;
-        }
-        .location-loading {
-            color: #90A4AE;
-            font-size: 13px;
-            text-align: center;
-            padding: 10px 0;
-        }
-
-        .location-addr {
-            font-size: 16px;
-            font-weight: 600;
-            color: #1565C0;
-            line-height: 1.6;
-            word-break: break-all;
-            padding: 6px 0 2px;
-        }
-
-        /* ========== 操作按钮 ========== */
+        .card-title { font-size: 14px; font-weight: 600; color: #1565C0; margin-bottom: 10px; }
+        .location-loading { color: #90A4AE; font-size: 13px; text-align: center; padding: 10px 0; }
+        .location-addr { font-size: 16px; font-weight: 600; color: #1565C0; line-height: 1.6; word-break: break-all; }
         .action-btn {
-            display: block;
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #1E88E5 0%, #1565C0 100%);
-            color: #FFFFFF;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 14px rgba(30, 136, 229, 0.3);
-            margin-bottom: 16px;
+            display: block; width: 100%; padding: 14px; border: none; border-radius: 12px;
+            background: linear-gradient(135deg,#1E88E5,#1565C0); color: #fff;
+            font-size: 16px; font-weight: 600; letter-spacing: 1px; cursor: pointer;
+            box-shadow: 0 4px 14px rgba(30,136,229,.3); margin-bottom: 14px;
         }
-        .action-btn:active {
-            transform: scale(0.98);
-            box-shadow: 0 2px 8px rgba(30, 136, 229, 0.2);
-        }
-        .action-btn:disabled {
-            background: #BDBDBD;
-            box-shadow: none;
-            cursor: not-allowed;
-        }
-
-        /* ========== 加载动画 ========== */
-        .loading-container {
-            display: none;
-            text-align: center;
-            padding: 24px 0;
-        }
-        .loading-container.active {
-            display: block;
-        }
+        .action-btn:disabled { background: #BDBDBD; box-shadow: none; }
+        .loading-container { display: none; text-align: center; padding: 16px 0; }
+        .loading-container.active { display: block; }
         .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #E3F2FD;
-            border-top: 4px solid #1E88E5;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 12px;
+            width: 36px; height: 36px; border: 4px solid #E3F2FD; border-top-color: #1E88E5;
+            border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 10px;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { font-size: 14px; color: #1565C0; }
+        .loading-progress { font-size: 12px; color: #90A4AE; margin-top: 6px; }
+        .report-container { display: none; background: #fff; border-radius: 14px; padding: 16px; box-shadow: 0 2px 12px rgba(30,136,229,.08); }
+        .report-container.active { display: block; }
+        .report-title { font-size: 15px; font-weight: 600; color: #1565C0; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #E3F2FD; }
+        .report-content { font-size: 14px; line-height: 1.8; color: #424242; white-space: pre-wrap; word-break: break-word; }
+        .app-footer { text-align: center; font-size: 11px; color: #B0BEC5; padding: 12px 0; }
+        /* ========== 加密页 Tabs ========== */
+        .tabs { display: flex; background: #E3F2FD; border-radius: 10px; padding: 4px; margin-bottom: 14px; }
+        .tabs .tab {
+            flex: 1; border: none; background: transparent; padding: 9px 0; border-radius: 8px;
+            font-size: 13px; font-weight: 600; color: #1565C0; cursor: pointer;
         }
-        .loading-text {
-            font-size: 14px;
-            color: #1565C0;
+        .tabs .tab.on { background: #fff; color: #1565C0; box-shadow: 0 1px 4px rgba(21,101,192,.15); }
+        .strength-bar { height: 10px; background: #E3F2FD; border-radius: 5px; overflow: hidden; margin-top: 8px; }
+        .strength-bar i { display: block; height: 100%; width: 0; border-radius: 5px; transition: width .3s, background .3s; }
+        /* ========== 遮罩 / 弹层 ========== */
+        .overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1000;
+            background: rgba(13,38,68,.62); display: none; align-items: center; justify-content: center;
+            padding: 20px;
         }
-        .loading-progress {
-            font-size: 12px;
-            color: #90A4AE;
-            margin-top: 6px;
+        .overlay.show { display: flex; }
+        .modal {
+            background: #fff; border-radius: 16px; padding: 18px; width: 92%; max-width: 420px;
+            max-height: 84vh; overflow-y: auto; position: relative;
         }
-
-        /* ========== 报告区域 ========== */
-        .report-container {
-            display: none;
-            background: #FFFFFF;
-            border-radius: 14px;
-            padding: 16px;
-            box-shadow: 0 2px 12px rgba(30, 136, 229, 0.08);
-            margin-bottom: 16px;
+        .modal .m-title { font-size: 16px; font-weight: 700; color: #1565C0; margin-bottom: 12px; }
+        .modal .m-close {
+            position: absolute; top: 10px; right: 14px; border: none; background: transparent;
+            font-size: 22px; color: #90A4AE; cursor: pointer;
         }
-        .report-container.active {
-            display: block;
+        .modal .m-close:active { color: #1565C0; }
+        /* ========== 统计网格 ========== */
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+        .stat-cell { background: #F5F9FF; border-radius: 10px; padding: 12px; text-align: center; }
+        .fmt-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #E3EDF7; }
+        .fmt-bar .t-btn { margin: 0; padding: 6px 10px; font-size: 13px; }
+        .fmt-bar input[type=number] { width: 56px; padding: 6px 8px; border: 1px solid #CFD8DC; border-radius: 8px; font-size: 14px; text-align: center; }
+        .stat-cell .num { font-size: 24px; font-weight: 800; color: #1565C0; }
+        .stat-cell .lab { font-size: 12px; color: #90A4AE; margin-top: 2px; }
+        /* ========== 坏点检测 / 触摸测试 全屏层 ========== */
+        .full-layer {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2000;
+            display: none; align-items: center; justify-content: center; touch-action: none;
         }
-        .report-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: #1565C0;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #E3F2FD;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+        .full-layer.show { display: flex; }
+        .full-layer .fl-btn {
+            position: absolute; top: 16px; right: 16px; border: none; border-radius: 20px;
+            padding: 8px 18px; font-size: 14px; font-weight: 600; cursor: pointer;
+            background: rgba(255,255,255,.85); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,.2);
         }
-        .report-title::before {
-            content: "📊";
+        .full-layer .fl-hint {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            color: rgba(255,255,255,.9); font-size: 13px; background: rgba(0,0,0,.35);
+            padding: 6px 14px; border-radius: 16px; white-space: nowrap;
         }
-        .report-content {
-            font-size: 14px;
-            line-height: 1.8;
-            color: #424242;
-            white-space: pre-wrap;
-            word-break: break-word;
+        .full-layer .fl-hint.dark { color: rgba(0,0,0,.65); background: rgba(255,255,255,.4); }
+        #touchInfo { position: absolute; top: 16px; left: 16px; font-size: 13px; color: #1565C0; background: #fff; padding: 6px 12px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+        #touchList { position: absolute; top: 56px; left: 16px; max-width: 70%; max-height: 50%; overflow-y: auto; font-size: 12px; color: #333; background: rgba(255,255,255,.8); padding: 8px 10px; border-radius: 10px; }
+        .hint { font-size: 12px; color: #90A4AE; margin-top: 8px; }
+        /* ========== 工具全屏页（工具列表） ========== */
+        .tool-page {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1500;
+            background: linear-gradient(180deg,#E3F2FD 0%,#F5F9FF 40%,#FFFFFF 100%);
+            display: none; flex-direction: column; overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
-        .report-content p {
-            margin-bottom: 10px;
+        .tool-page.show { display: flex; }
+        .tp-header {
+            display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+            background: rgba(255,255,255,.96); border-bottom: 1px solid #E3F2FD;
+            position: sticky; top: 0; z-index: 1; box-shadow: 0 1px 6px rgba(21,101,192,.06);
         }
-
-        /* ========== 左上角悬浮调试设置入口 ========== */
-        .dev-float-btn {
-            position: fixed;
-            top: 12px;
-            left: 12px;
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.92);
-            border: 1px solid #E3F2FD;
-            box-shadow: 0 2px 8px rgba(21, 101, 192, 0.18);
-            color: #1565C0;
-            font-size: 18px;
-            line-height: 1;
-            cursor: pointer;
-            z-index: 999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
+        .tp-back {
+            border: 1px solid #D0D8E3; background: #fff; border-radius: 18px;
+            padding: 6px 14px; font-size: 14px; color: #455A64; cursor: pointer;
         }
-        .dev-float-btn:active {
-            transform: scale(0.92);
-            background: #E3F2FD;
+        .tp-back:active { background: #E3F2FD; }
+        .tp-title { font-size: 17px; font-weight: 700; color: #1565C0; }
+        .tool-page .page-inner { padding: 16px; max-width: 560px; margin: 0 auto; width: 100%; }
+        /* ========== 工具列表页 ========== */
+        .tool-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
         }
-
-        /* ========== 底部声明 ========== */
-        .app-footer {
-            text-align: center;
-            font-size: 11px;
-            color: #B0BEC5;
-            padding: 12px 0;
+        .tool-item {
+            background: #fff; border: 1px solid #E3F2FD; border-radius: 14px;
+            padding: 18px 8px; text-align: center; cursor: pointer;
+            box-shadow: 0 2px 8px rgba(21,101,192,.06);
         }
+        .tool-item:active { background: #E3F2FD; }
+        .ti-icon { font-size: 30px; margin-bottom: 8px; }
+        .ti-name { font-size: 13px; color: #455A64; font-weight: 600; }
     </style>
 </head>
 <body>
 
-    <!-- 左上角常驻调试设置入口 -->
-    <button class="dev-float-btn" id="devEntry" onclick="openDevSettings()" title="开发者设置">⚙</button>
+    <!-- ===== 顶部栏 ===== -->
+    <header class="topbar">
+        <button class="tb-btn" id="devEntry" onclick="openDevSettings()" title="开发者设置">⚙</button>
+        <div class="tb-title" id="pageTitle">洞察</div>
+        <button class="tb-btn tb-more" onclick="openToolList()" title="更多工具">更多</button>
+    </header>
 
-    <!-- 标题 -->
-    <div class="app-header">
-        <h1>周边洞察</h1>
-        <div class="subtitle">AI 驱动的周边信息分析</div>
+    <!-- ===== 6 页滑屏 ===== -->
+    <div class="pages" id="pages">
+
+        <!-- 第 1 页：洞察（原 DOM 保留） -->
+        <section class="page" id="page-insight">
+            <div class="page-inner">
+                <div class="app-header">
+                    <h1>源</h1>
+                    <div class="subtitle">多功能本地实用工具箱</div>
+                </div>
+                <div class="location-card" id="locationCard">
+                    <div class="card-title">当前定位</div>
+                    <div class="location-loading" id="locationLoading">正在获取定位信息…</div>
+                    <div id="locationDetails" style="display:none;">
+                        <div class="location-addr" id="addrValue">-</div>
+                    </div>
+                </div>
+                <button class="action-btn" id="generateBtn" onclick="generateReport()">生成周边分析报告</button>
+                <div class="loading-container" id="loadingContainer">
+                    <div class="spinner"></div>
+                    <div class="loading-text" id="loadingText">正在分析周边信息…</div>
+                    <div class="loading-progress" id="loadingProgress"></div>
+                </div>
+                <div class="report-container" id="reportContainer">
+                    <div class="report-title">周边分析报告</div>
+                    <div class="report-content" id="reportContent"></div>
+                </div>
+                <div class="app-footer">数据仅供参考 · <a href="privacy.html" style="color:#B0BEC5;text-decoration:underline;">隐私政策</a></div>
+            </div>
+        </section>
+
+        <!-- 第 2 页：二维码 -->
+        <section class="page" id="page-qr">
+            <div class="page-inner">
+                <div class="tool-card">
+                    <div class="tc-title">生成二维码</div>
+                    <input type="text" id="qrText" placeholder="输入文本或链接">
+                    <button class="t-btn primary" onclick="genQr()">生成</button>
+                    <div id="qrcode" style="margin-top:12px;text-align:center;"></div>
+                    <button class="t-btn" id="qrSaveBtn" onclick="saveQrCode()" style="display:none;margin-top:10px;">💾 保存到相册</button>
+                </div>
+                <div class="tool-card">
+                    <div class="tc-title">识别二维码</div>
+                    <button class="t-btn primary" onclick="pickQrImage()">从相册选图识别</button>
+                    <div class="result-box" id="qrResult">识别结果将显示在这里</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 第 3 页：噪音计 -->
+        <section class="page" id="page-noise">
+            <div class="page-inner">
+                <div class="tool-card center">
+                    <div class="noise-big"><span id="noiseDb">--</span><span class="noise-unit">dB</span></div>
+                    <div class="big-label" id="noiseLevel">待开始</div>
+                    <div class="small-text" id="noiseDesc">点击「开始测量」后显示环境分贝</div>
+                    <canvas id="noiseCanvas" width="320" height="90" style="margin:10px auto;display:block;width:100%;max-width:320px;height:auto;"></canvas>
+                    <button class="t-btn primary" id="noiseBtn" onclick="toggleNoise()">开始测量</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 第 4 页：加密密码 -->
+        <section class="page" id="page-crypto">
+            <div class="page-inner">
+                <div class="tabs">
+                    <button class="tab on" data-tab="c1" onclick="switchTab('c1',this)">加密 / 解密</button>
+                    <button class="tab" data-tab="c2" onclick="switchTab('c2',this)">随机密码</button>
+                    <button class="tab" data-tab="c3" onclick="switchTab('c3',this)">强度评估</button>
+                </div>
+                <div id="c1" class="tool-card">
+                    <div class="tc-title">16 种算法</div>
+                    <select id="cryptoAlgo"></select>
+                    <textarea id="cryptoInput" rows="3" placeholder="输入明文 / 密文 / 待编码内容"></textarea>
+                    <input type="text" id="cryptoKey" placeholder="密钥（AES/DES/3DES/Rabbit/RC4 需要）" style="display:none;">
+                    <div id="cryptoKeyHint" class="hint" style="display:none;">无需密钥</div>
+                    <button class="t-btn primary" onclick="cryptoDo(true)">加密 / 编码</button>
+                    <button class="t-btn" onclick="cryptoDo(false)">解密 / 解码</button>
+                    <div class="result-box" id="cryptoResult">结果将显示在这里</div>
+                    <button class="t-btn" onclick="copyCryptoResult()">📋 复制结果</button>
+                </div>
+                <div id="c2" class="tool-card" style="display:none;">
+                    <div class="tc-title">随机密码生成器（加密级随机源）</div>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span class="small-text" style="white-space:nowrap;">长度</span>
+                        <input type="range" id="pwLen" min="4" max="64" value="16" style="flex:1;">
+                        <span id="pwLenVal" style="font-weight:700;color:#1565C0;">16</span>
+                    </div>
+                    <div style="margin-top:8px;">
+                        <label style="font-size:13px;margin-right:10px;"><input type="checkbox" id="pwUp" checked> 大写</label>
+                        <label style="font-size:13px;margin-right:10px;"><input type="checkbox" id="pwLow" checked> 小写</label>
+                        <label style="font-size:13px;margin-right:10px;"><input type="checkbox" id="pwNum" checked> 数字</label>
+                        <label style="font-size:13px;"><input type="checkbox" id="pwSym"> 符号</label>
+                    </div>
+                    <button class="t-btn primary" onclick="genPassword()">生成密码</button>
+                    <div class="result-box" id="pwResult">点击「生成密码」</div>
+                    <div class="strength-bar"><i id="pwStrengthBar"></i></div>
+                    <div class="small-text" id="pwStrengthTxt"></div>
+                </div>
+                <div id="c3" class="tool-card" style="display:none;">
+                    <div class="tc-title">密码强度评估（本地评分）</div>
+                    <input type="text" id="pwCheck" placeholder="输入要评估的密码" oninput="checkStrength()">
+                    <div class="strength-bar"><i id="pwCheckBar"></i></div>
+                    <div class="big-label" id="pwCheckScore" style="font-size:20px;margin-top:8px;">-- 分</div>
+                    <div class="small-text" id="pwCheckTxt">输入密码后自动评估</div>
+                </div>
+            </div>
+        </section>
     </div>
 
-    <!-- 定位信息卡片 -->
-    <div class="location-card" id="locationCard">
-        <div class="card-title">当前定位</div>
-        <div class="location-loading" id="locationLoading">正在获取定位信息…</div>
-        <div id="locationDetails" style="display:none;">
-            <div class="location-addr" id="addrValue">-</div>
+    <!-- ===== 底部圆点 ===== -->
+    <div class="dots" id="dots"></div>
+
+    <!-- ===== 工具列表页（替代原转盘） ===== -->
+    <section class="tool-page" id="tool-list">
+        <div class="tp-header">
+            <button class="tp-back" onclick="closeToolList()">← 返回</button>
         </div>
+        <div class="page-inner">
+            <div class="tool-grid">
+                <div class="tool-item" onclick="openTool('number')">
+                    <div class="ti-icon">📞</div><div class="ti-name">号码归属地</div>
+                </div>
+                <div class="tool-item" onclick="openTool('text')">
+                    <div class="ti-icon">📝</div><div class="ti-name">文字统计</div>
+                </div>
+                <div class="tool-item" onclick="openTool('check')">
+                    <div class="ti-icon">🔍</div><div class="ti-name">手机验机</div>
+                </div>
+                <div class="tool-item" onclick="openTool('today')">
+                    <div class="ti-icon">📅</div><div class="ti-name">历史上的今天</div>
+                </div>
+                <div class="tool-item" onclick="openTool('compass')">
+                    <div class="ti-icon">🧭</div><div class="ti-name">指南针</div>
+                </div>
+                <div class="tool-item" onclick="openTool('random')">
+                    <div class="ti-icon">🎲</div><div class="ti-name">随机数据</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 工具页：号码归属地 ===== -->
+    <section class="tool-page" id="tool-number">
+        <div class="tp-header">
+            <button class="tp-back" onclick="closeTool()">← 返回</button>
+            <div class="tp-title">📞 号码归属地（离线库）</div>
+        </div>
+        <div class="page-inner">
+            <div class="tool-card">
+                <input type="text" id="numInput" placeholder="输入 11 位手机号" maxlength="11">
+                <button class="t-btn primary" onclick="lookupNumber()">查询归属地</button>
+                <div class="result-box" id="numResult">输入手机号后点击查询</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 工具页：文字统计 ===== -->
+    <section class="tool-page" id="tool-text">
+        <div class="tp-header">
+            <button class="tp-back" onclick="closeTool()">← 返回</button>
+            <div class="tp-title">📝 文字统计</div>
+        </div>
+        <div class="page-inner">
+            <div class="tool-card">
+                <textarea id="textStatInput" rows="8" placeholder="粘贴或输入要统计的文字…" oninput="doTextStat()"></textarea>
+                <div class="stat-grid" id="textStatGrid"></div>
+                <div class="fmt-bar">
+                    <button class="t-btn" onclick="fmtIndent()">首行缩进</button>
+                    <button class="t-btn" onclick="fmtJoinLines()">合并单行</button>
+                    <button class="t-btn" onclick="fmtRemoveEmpty()">删空行</button>
+                    <span class="small-text" style="margin:0;">每行</span>
+                    <input type="number" id="fmtWrapNum" value="30" min="2" max="200">
+                    <span class="small-text" style="margin:0;">字</span>
+                    <button class="t-btn" onclick="fmtWrapLines()">按字数换行</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 工具页：手机验机自检 ===== -->
+    <section class="tool-page" id="tool-check">
+        <div class="tp-header">
+            <button class="tp-back" onclick="closeTool()">← 返回</button>
+            <div class="tp-title">🔍 手机验机自检</div>
+        </div>
+        <div class="page-inner">
+            <div class="tool-card">
+                <div class="result-box" id="deviceInfoBox" style="max-height:200px;">读取设备信息中…</div>
+                <div style="margin-top:12px;">
+                    <button class="t-btn primary" onclick="startDeadPixel()">🖥️ 坏点检测</button>
+                    <button class="t-btn" onclick="startTouchTest()">👆 触摸测试</button>
+                </div>
+                <div class="small-text" style="margin-top:8px;">坏点检测：全屏循环显示纯色，观察是否有异常像素点</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 工具页：历史上的今天 ===== -->
+    <section class="tool-page" id="tool-today">
+        <div class="tp-header">
+            <button class="tp-back" onclick="closeTool()">← 返回</button>
+            <div class="tp-title">📅 历史上的今天</div>
+        </div>
+        <div class="page-inner">
+            <div class="tool-card">
+                <div class="big-label" id="todayDate" style="font-size:18px;margin-bottom:10px;">--月--日</div>
+                <div id="todayList" style="font-size:14px;line-height:1.9;color:#424242;"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 工具页：批量随机数据 ===== -->
+    <section class="tool-page" id="tool-random">
+        <div class="tp-header">
+            <button class="tp-back" onclick="closeTool()">← 返回</button>
+            <div class="tp-title">🎲 批量随机数据生成器</div>
+        </div>
+        <div class="page-inner">
+            <div class="tool-card">
+                <select id="randType">
+                    <option value="num">随机数字（0-9999）</option>
+                    <option value="pw">随机密码（12位）</option>
+                    <option value="phone">随机手机号（13/15/18开头）</option>
+                    <option value="date">随机日期（近10年）</option>
+                    <option value="hex">随机十六进制串（32位）</option>
+                </select>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span class="small-text" style="white-space:nowrap;">数量</span>
+                    <input type="range" id="randCount" min="1" max="200" value="20" style="flex:1;">
+                    <span id="randCountVal" style="font-weight:700;color:#1565C0;">20</span>
+                </div>
+                <button class="t-btn primary" onclick="genRandomData()">生成（加密级随机源）</button>
+                <div class="result-box" id="randResult" style="max-height:220px;"></div>
+                <button class="t-btn" onclick="copyRandResult()">复制结果</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 工具页：指南针 ===== -->
+    <section class="tool-page" id="tool-compass">
+        <div class="tp-header">
+            <button class="tp-back" onclick="closeTool()">← 返回</button>
+            <div class="tp-title">🧭 指南针</div>
+        </div>
+        <div class="page-inner">
+            <div class="tool-card center">
+                <canvas id="compassCanvas" width="280" height="280" style="margin:0 auto;display:block;max-width:100%;"></canvas>
+                <div class="big-num" id="compassAzimuth">--°</div>
+                <div class="big-label" id="compassDir">等待启动</div>
+                <div class="small-text" id="compassTilt">俯仰 --°　滚转 --°</div>
+                <button class="t-btn primary" id="compassBtn" onclick="toggleCompass()">启动指南针</button>
+                <div class="hint" id="compassSupport">检测中…</div>
+            </div>
+        </div>
+    </section>
+    <!-- ===== 坏点检测全屏层 ===== -->
+    <div class="full-layer" id="deadPixelLayer" onclick="nextDeadColor()" style="background:#000;">
+        <button class="fl-btn" onclick="closeDeadPixel(event)">结束检测</button>
+        <div class="fl-hint" id="deadPixelHint">点击屏幕切换颜色 · 观察有无异常像素</div>
     </div>
 
-    <!-- 生成报告按钮 -->
-    <button class="action-btn" id="generateBtn" onclick="generateReport()">生成周边分析报告</button>
-
-    <!-- 加载动画 -->
-    <div class="loading-container" id="loadingContainer">
-        <div class="spinner"></div>
-        <div class="loading-text" id="loadingText">正在分析周边信息…</div>
-        <div class="loading-progress" id="loadingProgress"></div>
+    <!-- ===== 触摸测试全屏层 ===== -->
+    <div class="full-layer" id="touchTestLayer" style="background:#fff;">
+        <button class="fl-btn" onclick="closeTouchTest(event)">结束测试</button>
+        <div id="touchInfo">触摸屏幕任意位置</div>
+        <div id="touchList"></div>
+        <div class="fl-hint dark" id="touchHint">手指在屏幕上滑动，检查触控是否灵敏</div>
     </div>
 
-    <!-- 报告显示区域 -->
-    <div class="report-container" id="reportContainer">
-        <div class="report-title">周边分析报告</div>
-        <div class="report-content" id="reportContent"></div>
-    </div>
-
-    <!-- 底部声明 -->
-    <div class="app-footer">数据仅供参考 · <a href="privacy.html" style="color:#B0BEC5;text-decoration:underline;">隐私政策</a></div>
-
-    <!-- 业务逻辑脚本 -->
+    <!-- ===== 本地库 & 业务逻辑 ===== -->
+    <script src="crypto-js.min.js"></script>
+    <script src="qrcode.min.js"></script>
+    <script src="jsqr.js"></script>
+    <script src="data.js"></script>
+    <script src="history.js"></script>
     <script src="app.js"></script>
+    <script src="app_tools.js"></script>
 </body>
 </html>
