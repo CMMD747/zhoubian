@@ -14,8 +14,8 @@
   ],
   "disabled": false,
   "disabledMessage": "应用服务已停止",
-  "appVersion": "2.0",
-  "note": "v2.0 release",
+  "appVersion": "2.0.1",
+  "note": "v2.0.1 release",
   "bannedFps": [],
   "apkUrl": "https://github.com/CMMD747/zhoubian/releases/download/v2.0/zhoubian_v2.0.apk"
 }
