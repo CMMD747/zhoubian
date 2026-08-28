@@ -1,5 +1,5 @@
 {
-  "version": 12,
+  "version": 13,
   "files": [
     "index.html",
     "app.js",
@@ -7,7 +7,7 @@
   ],
   "disabled": false,
   "disabledMessage": "应用服务已停止",
-  "appVersion": "1.4.4",
-  "note": "v1.4.4 release",
-  "apkUrl": "https://github.com/CMMD747/zhoubian/releases/download/v1.4.4/zhoubian_v1.4.4.apk"
+  "appVersion": "1.4.5",
+  "note": "v1.4.5 release",
+  "apkUrl": "https://github.com/CMMD747/zhoubian/releases/download/v1.4.5/zhoubian_v1.4.5.apk"
 }
