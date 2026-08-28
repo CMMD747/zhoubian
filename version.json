@@ -14,8 +14,8 @@
   ],
   "disabled": false,
   "disabledMessage": "应用服务已停止",
-  "appVersion": "2.0.2",
-  "note": "v2.0.2 release",
+  "appVersion": "2.0.3",
+  "note": "v2.0.3 release",
   "bannedFps": [],
-  "apkUrl": "https://cdn.jsdelivr.net/gh/CMMD747/zhoubian@main/apk/zhoubian_v2.0.2.apk"
+  "apkUrl": "https://cdn.jsdelivr.net/gh/CMMD747/zhoubian@main/apk/zhoubian_v2.0.3.apk"
 }
