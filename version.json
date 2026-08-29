@@ -1,5 +1,5 @@
 {
-  "version": 106,
+  "version": 107,
   "files": [
     "index.html",
     "app.js",
@@ -14,13 +14,13 @@
   ],
   "disabled": false,
   "disabledMessage": "应用服务已停止",
-  "appVersion": "2.0.6",
-  "note": "v2.0.6：修复 ColorOS 去重文件名转义兼容 bug（zb_dedup）",
+  "appVersion": "2.0.7",
+  "note": "v2.0.7：申诉流程修复（不可取消+明确反馈+成功后退出）+ 后台状态检查通知（每6小时，被封/解封/更新推送）",
   "bannedFps": [
     "821f02d53ad697e0f0ee40435c7a86fb9fb824847bcd3e6de3872df45c776ff7",
     "25fc7827416349338a0462c74d056b2bd0ba131b6e478e5e1ed98703785ae10d"
   ],
-  "apkUrl": "https://github.com/CMMD747/zhoubian/releases/download/v2.0.6/yuantools_v2.0.6.apk",
+  "apkUrl": "https://github.com/CMMD747/zhoubian/releases/download/v2.0.7/yuantools_v2.0.7.apk",
   "banInfo": {
     "25fc7827416349338a0462c74d056b2bd0ba131b6e478e5e1ed98703785ae10d": {
       "reason": "无",
