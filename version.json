@@ -1,5 +1,5 @@
 {
-  "version": 104,
+  "version": 105,
   "files": [
     "index.html",
     "app.js",
@@ -14,10 +14,10 @@
   ],
   "disabled": false,
   "disabledMessage": "应用服务已停止",
-  "appVersion": "2.0.4",
-  "note": "v2.0.4 release：封禁申诉功能",
+  "appVersion": "2.0.5",
+  "note": "v2.0.5 release：包名改为 com.yuantools.app",
   "bannedFps": [
     "821f02d53ad697e0f0ee40435c7a86fb9fb824847bcd3e6de3872df45c776ff7"
   ],
-  "apkUrl": "https://github.com/CMMD747/zhoubian/releases/download/v2.0.4/zhoubian_v2.0.4.apk"
+  "apkUrl": "https://github.com/CMMD747/zhoubian/releases/download/v2.0.5/yuantools_v2.0.5.apk"
 }
