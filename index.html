@@ -194,6 +194,23 @@
         .tool-item:active { background: #E3F2FD; }
         .ti-icon { font-size: 30px; margin-bottom: 8px; }
         .ti-name { font-size: 13px; color: #455A64; font-weight: 600; }
+        .app-item {
+            display: flex; justify-content: space-between; align-items: center; gap: 8px;
+            padding: 8px 10px; border-bottom: 1px solid #E3F2FD; cursor: pointer; border-radius: 8px;
+        }
+        .app-item:active { background: #E3F2FD; }
+        .app-item .app-name { font-size: 14px; color: #263238; font-weight: 600; }
+        .app-item .app-pkg { font-size: 12px; color: #90A4AE; word-break: break-all; }
+        .app-badge { font-size: 10px; color: #78909C; border: 1px solid #B0BEC5; border-radius: 8px; padding: 0 5px; margin-left: 4px; vertical-align: middle; }
+        .app-more { color: #1565C0; font-size: 18px; padding: 0 4px; flex-shrink: 0; }
+        .app-menu-item { padding: 12px 6px; border-bottom: 1px solid #E3F2FD; cursor: pointer; font-size: 15px; color: #263238; }
+        .app-menu-item:active { background: #E3F2FD; }
+        .app-menu-item.danger { color: #E53935; }
+        .app-info-row { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px dashed #E3F2FD; font-size: 13px; }
+        .app-info-row span { color: #78909C; flex-shrink: 0; }
+        .app-info-row b { color: #263238; text-align: right; word-break: break-all; }
+        .app-perms-title { font-size: 13px; color: #1565C0; font-weight: 700; margin: 8px 0 4px; }
+        .app-perm { font-size: 11px; color: #546E7A; background: #F5F9FF; border-radius: 6px; padding: 3px 8px; margin: 3px 0; word-break: break-all; }
     </style>
 </head>
 <body>
@@ -343,6 +360,9 @@
                 <div class="tool-item" onclick="openTool('random')">
                     <div class="ti-icon">🎲</div><div class="ti-name">随机数据</div>
                 </div>
+                <div class="tool-item" onclick="openTool('apps')">
+                    <div class="ti-icon">📱</div><div class="ti-name">应用管理</div>
+                </div>
             </div>
         </div>
     </section>
@@ -461,6 +481,21 @@
             </div>
         </div>
     </section>
+    <!-- ===== 工具页：应用管理 ===== -->
+    <section class="tool-page" id="tool-apps">
+        <div class="tp-header">
+            <button class="tp-back" onclick="closeTool()">← 返回</button>
+            <div class="tp-title">📱 应用管理</div>
+        </div>
+        <div class="page-inner">
+            <div class="tool-card">
+                <input type="text" id="appSearchInput" placeholder="搜索应用名称或包名" oninput="renderAppList()">
+                <div class="result-box" id="appListBox" style="max-height:420px;overflow-y:auto;text-align:left;font-size:13px;line-height:2;margin-top:10px;">加载中…</div>
+                <div class="hint">展示本机已安装应用（需授权"应用列表"权限）；点击条目弹出操作菜单：打开应用 / 应用信息（权限·大小·签名）/ 系统详情 / 应用商店 / 复制包名 / 分享 / 卸载。</div>
+            </div>
+        </div>
+    </section>
+
     <!-- ===== 坏点检测全屏层 ===== -->
     <div class="full-layer" id="deadPixelLayer" onclick="nextDeadColor()" style="background:#000;">
         <button class="fl-btn" onclick="closeDeadPixel(event)">结束检测</button>
