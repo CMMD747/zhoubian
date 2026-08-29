@@ -1,5 +1,5 @@
 {
-  "version": 103,
+  "version": 104,
   "files": [
     "index.html",
     "app.js",
@@ -14,10 +14,10 @@
   ],
   "disabled": false,
   "disabledMessage": "应用服务已停止",
-  "appVersion": "2.0.3",
-  "note": "v2.0.3 release",
+  "appVersion": "2.0.4",
+  "note": "v2.0.4 release：封禁申诉功能",
   "bannedFps": [
     "821f02d53ad697e0f0ee40435c7a86fb9fb824847bcd3e6de3872df45c776ff7"
   ],
-  "apkUrl": "https://cmmd747.github.io/zhoubian/apk/zhoubian_v2.0.3.apk"
+  "apkUrl": "https://github.com/CMMD747/zhoubian/releases/download/v2.0.4/zhoubian_v2.0.4.apk"
 }
