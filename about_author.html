@@ -5,54 +5,259 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>长篇小说 · 小源</title>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   body { font-family:"Songti SC","Noto Serif CJK SC","Source Han Serif SC","SimSun",serif; background:#1e1c1a; color:#c9c2b4; line-height:1.9; padding:28px 20px 60px; max-width:640px; margin:0 auto; }
   h1 { text-align:center; font-size:24px; color:#e8e0d2; letter-spacing:8px; margin:34px 0 10px; font-weight:600; }
-  .subtitle { text-align:center; color:#8a7d6a; font-size:13px; letter-spacing:2px; margin-bottom:28px; border-bottom:1px solid #3a352f; padding-bottom:22px; }
-  .intro { border-left:3px solid #a8906c; padding:12px 16px; margin:6px 12px 26px; color:#b3a48e; font-size:15px; background:rgba(168,144,108,0.06); line-height:1.8; }
-  h2 { text-align:center; font-size:18px; color:#a8906c; letter-spacing:4px; margin:52px 0 20px; font-weight:600; }
-  h3 { text-align:center; font-size:16px; color:#c9b896; letter-spacing:3px; margin:36px 0 16px; font-weight:600; }
-  p { text-indent:2em; margin-bottom:14px; font-size:16px; text-align:justify; }
-  .status { text-align:center; color:#7d7160; font-size:13px; letter-spacing:1px; margin:18px 0 8px; }
-  .contact { text-align:center; margin-top:52px; padding-top:22px; border-top:1px solid #3a352f; }
+  .subtitle { text-align:center; color:#8a7d6a; font-size:13px; letter-spacing:2px; margin-bottom:24px; border-bottom:1px solid #3a352f; padding-bottom:20px; }
+  .intro { border-left:3px solid #a8906c; padding:12px 16px; margin:6px 12px 22px; color:#b3a48e; font-size:15px; background:rgba(168,144,108,0.06); line-height:1.8; }
+  .status { text-align:center; color:#7d7160; font-size:13px; letter-spacing:1px; margin:14px 0 18px; }
+  .btn-row { text-align:center; margin:14px 0 4px; }
+  .btn-primary { display:inline-block; background:#a8906c; color:#1e1c1a; border:none; border-radius:22px; padding:11px 34px; font-size:15px; letter-spacing:3px; margin:6px 6px; cursor:pointer; }
+  .btn-primary.ghost { background:transparent; color:#a8906c; border:1px solid #a8906c; }
+  /* 目录 */
+  .toc { margin-top:26px; }
+  .toc-title { text-align:center; color:#a8906c; font-size:17px; letter-spacing:6px; margin:8px 0 14px; }
+  .vol { border-bottom:1px solid #302b25; }
+  .vol-head { display:flex; justify-content:space-between; align-items:center; padding:13px 4px; color:#c9b896; font-size:16px; letter-spacing:2px; cursor:pointer; }
+  .vol-head .arrow { color:#7d7160; font-size:12px; transition:transform .2s; }
+  .vol.open .arrow { transform:rotate(90deg); }
+  .vol-chaps { display:none; padding:0 4px 10px 18px; }
+  .vol.open .vol-chaps { display:block; }
+  .chap { display:block; padding:8px 4px; color:#9c917f; font-size:15px; letter-spacing:1px; border-bottom:1px dashed #2a2620; cursor:pointer; }
+  .chap:active { color:#e8e0d2; }
+  .chap .n { color:#7d7160; margin-right:6px; }
+  /* 阅读页 */
+  #reader { display:none; }
+  .reader-top { display:flex; justify-content:space-between; align-items:center; padding:10px 2px 12px; border-bottom:1px solid #3a352f; position:sticky; top:0; background:#1e1c1a; z-index:5; }
+  .reader-title { color:#a8906c; font-size:14px; letter-spacing:2px; max-width:55%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .nav-btn { color:#c9a86a; font-size:14px; letter-spacing:2px; padding:6px 10px; cursor:pointer; border:1px solid #3a352f; border-radius:6px; background:#24211d; }
+  .nav-btn:active { background:#332e27; }
+  .font-btns { display:flex; gap:4px; }
+  .font-btns .nav-btn { padding:6px 8px; letter-spacing:0; font-size:13px; }
+  #readerContent { padding-top:20px; min-height:70vh; }
+  #readerContent h3 { text-align:center; font-size:17px; color:#c9b896; letter-spacing:3px; margin:10px 0 24px; font-weight:600; }
+  #readerContent p { text-indent:2em; margin-bottom:16px; font-size:16px; text-align:justify; }
+  .reader-bottom { display:flex; justify-content:space-between; margin-top:30px; padding-top:18px; border-top:1px solid #3a352f; }
+  .reader-bottom .nav-btn { padding:10px 22px; }
+  .nav-btn.disabled { opacity:.3; pointer-events:none; }
+  .contact { text-align:center; margin-top:44px; padding-top:20px; border-top:1px solid #3a352f; }
   .contact p { text-indent:0; margin-bottom:6px; color:#a8906c; font-size:15px; letter-spacing:3px; }
   .contact a { color:#c9a86a; text-decoration:none; border-bottom:1px dashed #a8906c; }
-  .end { text-align:center; color:#8a7d6a; font-size:14px; margin-top:46px; letter-spacing:8px; }
+  .end { text-align:center; color:#8a7d6a; font-size:14px; margin-top:40px; letter-spacing:8px; }
 </style>
 </head>
 <body>
-<h1>小源</h1>
-<div class="subtitle">长篇小说 · 回忆录体（1885—1980）</div>
-<div class="intro">《小源》是一部回忆录体长篇小说。主人公小源，生于光绪十一年（1885年）八月初二，河南扶沟县刘家村人，卒于1980年腊月二十三，享年九十五岁。全书以第一人称，从出生写到临终，横跨晚清、民国、抗战与新中国。记的是一块土地、几亩庄稼、一家人的吃饭穿衣，和一个农民一辈子的盼与等。</div>
-<div id="status" class="status">正在从云端加载正文…</div>
-<div id="novel"></div>
-<div class="contact">
-  <p>联系我们</p>
-  <p>作者 QQ：<a href="mqq://card/show_pslcard?src_type=internal&version=1&uin=445256409">445256409</a></p>
+
+<!-- 书籍首页 -->
+<div id="bookHome">
+  <h1>小源</h1>
+  <div class="subtitle">长篇小说 · 回忆录体（1885—1980）</div>
+  <div class="intro">《小源》是一部回忆录体长篇小说。主人公小源，生于光绪十一年（1885年）八月初二，河南扶沟县刘家村人，卒于1980年腊月二十三，享年九十五岁。全书以第一人称，从出生写到临终，横跨晚清、民国、抗战与新中国。记的是一块土地、几亩庄稼、一家人的吃饭穿衣，和一个农民一辈子的盼与等。</div>
+  <div id="status" class="status">正在从云端加载正文…</div>
+  <div class="btn-row">
+    <button id="btnContinue" class="btn-primary" style="display:none">继续阅读</button>
+    <button id="btnStart" class="btn-primary ghost">从头阅读</button>
+  </div>
+  <div class="toc">
+    <div class="toc-title">目 录</div>
+    <div id="tocList"></div>
+  </div>
+  <div class="contact">
+    <p>联系我们</p>
+    <p>作者 QQ：<a href="mqq://card/show_pslcard?src_type=internal&version=1&uin=445256409">445256409</a></p>
+  </div>
 </div>
-<div class="end">全书完</div>
+
+<!-- 阅读页 -->
+<div id="reader">
+  <div class="reader-top">
+    <span id="btnBack" class="nav-btn">目录</span>
+    <span id="readerTitle" class="reader-title"></span>
+    <span class="font-btns">
+      <span id="btnFontMinus" class="nav-btn">A−</span>
+      <span id="btnFontPlus" class="nav-btn">A＋</span>
+    </span>
+  </div>
+  <div id="readerContent"></div>
+  <div class="reader-bottom">
+    <span id="btnPrev" class="nav-btn">上一章</span>
+    <span id="btnNext" class="nav-btn">下一章</span>
+  </div>
+</div>
+
 <script>
 (function(){
   var BASE = 'https://cmmd747.github.io/zhoubian/novel/';
   var FILES = ['楔子','第一卷','第二卷','第三卷','第四卷','第五卷','第六卷','第七卷','第八卷','尾声'];
-  var PREFIX = 'novel_xiaoyuan_v1_';
-  var novelEl = document.getElementById('novel');
+  var CACHE_PREFIX = 'novel_xiaoyuan_v1_';
+  var POS_KEY = 'xy_read_pos';
+  var FONT_KEY = 'xy_font_size';
+
+  var novelEl = document.getElementById('bookHome');
+  var readerEl = document.getElementById('reader');
   var statusEl = document.getElementById('status');
+  var tocListEl = document.getElementById('tocList');
+  var btnContinue = document.getElementById('btnContinue');
+  var btnStart = document.getElementById('btnStart');
+
+  // NOVEL: [{file, title, chapters:[{title, paras:[]}]}]
+  var NOVEL = [];
+  // flat: [{vi, ci, title}]
+  var FLAT = [];
+  var curIdx = -1;
 
   function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'"'); }
 
-  function renderText(text){
-    var lines = text.split(/\r?\n/), html = '';
-    for (var i = 0; i < lines.length; i++){
+  function parseVol(file, text){
+    var lines = text.split(/\r?\n/);
+    var volTitle = lines.length ? lines[0].trim() : file;
+    var chapters = [];
+    var cur = null;
+    for (var i = 1; i < lines.length; i++){
       var line = lines[i].trim();
       if (!line) continue;
-      if (i === 0){ html += '<h2>' + esc(line) + '</h2>'; }
-      else if (/^第[一二三四五六七八九十百零\d]+章/.test(line)){ html += '<h3>' + esc(line) + '</h3>'; }
-      else { html += '<p>' + esc(line) + '</p>'; }
+      if (/^第[一二三四五六七八九十百零\d]+章/.test(line)){
+        cur = { title: line, paras: [] };
+        chapters.push(cur);
+      } else {
+        if (!cur){ cur = { title: volTitle, paras: [] }; chapters.push(cur); }
+        cur.paras.push(line);
+      }
     }
-    return html;
+    if (chapters.length === 0){ chapters.push({ title: volTitle, paras: [] }); }
+    return { file: file, title: volTitle, chapters: chapters };
   }
 
+  function buildFlat(){
+    FLAT = [];
+    for (var vi = 0; vi < NOVEL.length; vi++){
+      for (var ci = 0; ci < NOVEL[vi].chapters.length; ci++){
+        FLAT.push({ vi: vi, ci: ci, title: NOVEL[vi].chapters[ci].title });
+      }
+    }
+  }
+
+  function renderToc(){
+    var html = '';
+    for (var vi = 0; vi < NOVEL.length; vi++){
+      var vol = NOVEL[vi];
+      var open = vi === 0 ? ' open' : '';
+      html += '<div class="vol' + open + '" data-vi="' + vi + '">';
+      html += '<div class="vol-head">' + esc(vol.title) + '<span class="arrow">▶</span></div>';
+      html += '<div class="vol-chaps">';
+      for (var ci = 0; ci < vol.chapters.length; ci++){
+        html += '<span class="chap" data-vi="' + vi + '" data-ci="' + ci + '"><span class="n">' + (ci + 1) + '.</span>' + esc(vol.chapters[ci].title) + '</span>';
+      }
+      html += '</div></div>';
+    }
+    tocListEl.innerHTML = html;
+
+    // 卷折叠
+    var heads = tocListEl.querySelectorAll('.vol-head');
+    for (var i = 0; i < heads.length; i++){
+      heads[i].addEventListener('click', function(){
+        var v = this.parentNode;
+        v.classList.toggle('open');
+      });
+    }
+    // 章节点击
+    var chaps = tocListEl.querySelectorAll('.chap');
+    for (var j = 0; j < chaps.length; j++){
+      chaps[j].addEventListener('click', function(){
+        var vi = parseInt(this.getAttribute('data-vi'), 10);
+        var ci = parseInt(this.getAttribute('data-ci'), 10);
+        goChapter(vi, ci);
+      });
+    }
+  }
+
+  function flatIndexOf(vi, ci){
+    for (var i = 0; i < FLAT.length; i++){
+      if (FLAT[i].vi === vi && FLAT[i].ci === ci) return i;
+    }
+    return -1;
+  }
+
+  function renderChapter(){
+    var f = FLAT[curIdx];
+    var chap = NOVEL[f.vi].chapters[f.ci];
+    var fs = parseInt(localStorage.getItem(FONT_KEY) || '16', 10);
+    var html = '<h3>' + esc(chap.title) + '</h3>';
+    for (var i = 0; i < chap.paras.length; i++){
+      html += '<p>' + esc(chap.paras[i]) + '</p>';
+    }
+    document.getElementById('readerContent').innerHTML = html;
+    document.getElementById('readerContent').style.fontSize = fs + 'px';
+    var ps = document.getElementById('readerContent').querySelectorAll('p');
+    for (var k = 0; k < ps.length; k++){ ps[k].style.fontSize = fs + 'px'; }
+    document.getElementById('readerTitle').textContent = NOVEL[f.vi].title;
+    document.getElementById('btnPrev').classList.toggle('disabled', curIdx <= 0);
+    document.getElementById('btnNext').classList.toggle('disabled', curIdx >= FLAT.length - 1);
+    try { localStorage.setItem(POS_KEY, JSON.stringify({ vi: f.vi, ci: f.ci })); } catch(e){}
+    window.scrollTo(0, 0);
+  }
+
+  function goChapter(vi, ci){
+    var idx = flatIndexOf(vi, ci);
+    if (idx < 0) return;
+    curIdx = idx;
+    novelEl.style.display = 'none';
+    readerEl.style.display = 'block';
+    renderChapter();
+  }
+
+  function backToHome(){
+    readerEl.style.display = 'none';
+    novelEl.style.display = 'block';
+    // 更新继续阅读按钮
+    updateContinue();
+    window.scrollTo(0, 0);
+  }
+
+  function updateContinue(){
+    var pos = null;
+    try { pos = JSON.parse(localStorage.getItem(POS_KEY) || 'null'); } catch(e){}
+    if (pos){
+      var idx = flatIndexOf(pos.vi, pos.ci);
+      if (idx >= 0){
+        btnContinue.style.display = 'inline-block';
+        btnContinue.textContent = '继续阅读：' + FLAT[idx].title;
+      } else {
+        btnContinue.style.display = 'none';
+      }
+    } else {
+      btnContinue.style.display = 'none';
+    }
+  }
+
+  // 事件绑定
+  btnContinue.addEventListener('click', function(){
+    var pos = null;
+    try { pos = JSON.parse(localStorage.getItem(POS_KEY) || 'null'); } catch(e){}
+    if (pos) goChapter(pos.vi, pos.ci);
+  });
+  btnStart.addEventListener('click', function(){ if (FLAT.length) goChapter(FLAT[0].vi, FLAT[0].ci); });
+  document.getElementById('btnBack').addEventListener('click', backToHome);
+  document.getElementById('btnPrev').addEventListener('click', function(){
+    if (curIdx > 0){ curIdx--; renderChapter(); }
+  });
+  document.getElementById('btnNext').addEventListener('click', function(){
+    if (curIdx < FLAT.length - 1){ curIdx++; renderChapter(); }
+  });
+  document.getElementById('btnFontMinus').addEventListener('click', function(){
+    var fs = parseInt(localStorage.getItem(FONT_KEY) || '16', 10);
+    fs = Math.max(13, fs - 1);
+    localStorage.setItem(FONT_KEY, String(fs));
+    renderChapter();
+  });
+  document.getElementById('btnFontPlus').addEventListener('click', function(){
+    var fs = parseInt(localStorage.getItem(FONT_KEY) || '16', 10);
+    fs = Math.min(24, fs + 1);
+    localStorage.setItem(FONT_KEY, String(fs));
+    renderChapter();
+  });
+
+  // 数据加载
   function fetchT(url, ms){
     return new Promise(function(res, rej){
       var done = false;
@@ -68,40 +273,39 @@
     return fetchT(BASE + encodeURIComponent(name) + '.txt', 10000)
       .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
       .then(function(t){
-        try { localStorage.setItem(PREFIX + name, t); } catch(e){}
+        try { localStorage.setItem(CACHE_PREFIX + name, t); } catch(e){}
         return { name: name, text: t, fromCache: false };
       })
       .catch(function(){
         var c = null;
-        try { c = localStorage.getItem(PREFIX + name); } catch(e){}
+        try { c = localStorage.getItem(CACHE_PREFIX + name); } catch(e){}
         if (c) return { name: name, text: c, fromCache: true };
         return null;
       });
   }
 
-  function renderAll(files){
-    var html = '', any = false;
-    for (var i = 0; i < files.length; i++){
-      if (files[i].fromCache) any = true;
-      html += renderText(files[i].text);
-    }
-    novelEl.innerHTML = html;
-    statusEl.textContent = any ? '正文来自本地缓存（离线模式）' : '正文来自云端';
-  }
-
   var jobs = FILES.map(loadOne);
   Promise.all(jobs).then(function(results){
     var ok = results.filter(function(r){ return r; });
-    if (ok.length === FILES.length){ renderAll(ok); return; }
-    var all = [];
-    for (var i = 0; i < FILES.length; i++){
-      var c = null;
-      try { c = localStorage.getItem(PREFIX + FILES[i]); } catch(e){}
-      if (c) all.push({ name: FILES[i], text: c, fromCache: true });
+    var anyCache = ok.some(function(r){ return r.fromCache; });
+    if (ok.length === FILES.length){
+      statusEl.textContent = anyCache ? '正文来自本地缓存（离线模式）' : '正文来自云端';
+    } else {
+      statusEl.textContent = '部分正文未能加载，已显示本地缓存；其余请联网后重试。';
     }
-    if (all.length === FILES.length){ renderAll(all); return; }
-    if (ok.length){ renderAll(ok); statusEl.textContent = '部分正文云端不可用，已显示本地缓存；其余请联网后重试。'; }
-    else { statusEl.textContent = '云端正文暂时不可用，且无本地缓存。请联网后打开本页。'; }
+    if (ok.length === 0){
+      statusEl.textContent = '云端正文暂时不可用，且无本地缓存。请联网后打开本页。';
+      return;
+    }
+    NOVEL = [];
+    for (var i = 0; i < FILES.length; i++){
+      var r = results[i];
+      if (r) NOVEL.push(parseVol(r.name, r.text));
+    }
+    buildFlat();
+    renderToc();
+    updateContinue();
+    if (NOVEL.length === 0){ statusEl.textContent = '正文加载失败。'; }
   });
 })();
 </script>
