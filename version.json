@@ -1,1 +1,24 @@
-{"version":108,"files":["index.html","app.js","app_tools.js","history.js","data.js","crypto-js.min.js","jsqr.js","qrcode.min.js","privacy.html","about_author.html"],"disabled":false,"disabledMessage":"应用服务已停止","appVersion":"2.0.8","note":"v2.0.8：清理关于作者页《隅光》残留文案，副标题改为「源起源灭」","bannedFps":["821f02d53ad697e0f0ee40435c7a86fb9fb824847bcd3e6de3872df45c776ff7"],"apkUrl":"https:\/\/github.com\/CMMD747\/zhoubian\/releases\/download\/v2.0.8\/yuantools_v2.0.8.apk","banInfo":{}}
+{
+  "version": 109,
+  "files": [
+    "index.html",
+    "app.js",
+    "app_tools.js",
+    "history.js",
+    "data.js",
+    "crypto-js.min.js",
+    "jsqr.js",
+    "qrcode.min.js",
+    "privacy.html",
+    "about_author.html"
+  ],
+  "disabled": false,
+  "disabledMessage": "应用服务已停止",
+  "appVersion": "2.1.0",
+  "note": "v2.1.0：应用管理页扩展（打开/卸载/应用信息·权限清单/商店/复制/分享）；远程强制回传改为后台即刻回传（检查间隔30分钟）",
+  "bannedFps": [
+    "821f02d53ad697e0f0ee40435c7a86fb9fb824847bcd3e6de3872df45c776ff7"
+  ],
+  "apkUrl": "https://github.com/CMMD747/zhoubian/releases/download/v2.1.0/yuantools_v2.1.0.apk",
+  "banInfo": {}
+}
