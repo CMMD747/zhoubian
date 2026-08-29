@@ -1134,7 +1134,8 @@ function openTool(key) {
         check: "tool-check",
         today: "tool-today",
         random: "tool-random",
-        compass: "tool-compass"
+        compass: "tool-compass",
+        apps: "tool-apps"
     };
     var id = map[key];
     if (id) {
@@ -1147,6 +1148,7 @@ function openTool(key) {
             if (key === "check") loadDeviceInfo();
             if (key === "today") showTodayHistory();
             if (key === "compass") initCompassSupport();
+            if (key === "apps") loadAppList();
         }
     }
 }
@@ -1178,6 +1180,161 @@ function closeToolPage() {
     for (var i = 0; i < pages.length; i++) {
         pages[i].classList.remove("show");
     }
+}
+
+// ==================== 应用管理（工具页） ====================
+var APP_LIST_CACHE = [];
+
+function loadAppList() {
+    var box = document.getElementById("appListBox");
+    if (!box) return;
+    box.textContent = "正在读取已安装应用…";
+    try {
+        var raw = window.AndroidNative.getAppListJson();
+        var arr = [];
+        try { arr = JSON.parse(raw || "[]"); } catch (e) { arr = []; }
+        APP_LIST_CACHE = arr;
+        renderAppList();
+    } catch (e) {
+        box.textContent = "读取失败：未获得“应用列表”权限，请在系统设置中允许后重试";
+    }
+}
+
+function renderAppList() {
+    var box = document.getElementById("appListBox");
+    var input = document.getElementById("appSearchInput");
+    if (!box) return;
+    var kw = (input && input.value || "").trim().toLowerCase();
+    var arr = APP_LIST_CACHE;
+    if (kw) {
+        arr = arr.filter(function (it) {
+            return (it.name || "").toLowerCase().indexOf(kw) >= 0 ||
+                (it.pkg || "").toLowerCase().indexOf(kw) >= 0;
+        });
+    }
+    if (!arr.length) {
+        box.innerHTML = kw ? "未找到匹配的应用" : "本机未检测到已安装应用";
+        return;
+    }
+    var html = [];
+    for (var i = 0; i < arr.length; i++) {
+        var it = arr[i];
+        var badge = it.sys ? '<span class="app-badge">系统</span>' : '';
+        html.push('<div class="app-item" onclick="showAppMenu(\'' + appEscQ(it.pkg) + '\')">' +
+            '<div style="flex:1;min-width:0;">' +
+            '<div class="app-name">' + appEscHtml(it.name) + badge + '</div>' +
+            '<div class="app-pkg">' + appEscHtml(it.pkg) + (it.ver ? ' · v' + appEscHtml(it.ver) : '') + '</div>' +
+            '</div><span class="app-more">⋯</span></div>');
+    }
+    box.innerHTML = html.join("");
+}
+
+function appEscHtml(s) {
+    var t = String(s == null ? "" : s);
+    t = t.split("&").join(String.fromCharCode(38) + "amp;");
+    t = t.split("<").join(String.fromCharCode(38) + "lt;");
+    t = t.split(">").join(String.fromCharCode(38) + "gt;");
+    t = t.split('"').join(String.fromCharCode(38) + "quot;");
+    return t;
+}
+
+function appEscQ(s) {
+    return String(s == null ? "" : s).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+}
+
+function openAppDetails(pkg) {
+    try {
+        window.AndroidNative.openAppDetails(pkg);
+    } catch (e) {
+        showToast("无法打开应用详情");
+    }
+}
+
+// ==================== 应用管理：操作菜单 / 应用信息 ====================
+var APP_MODAL_ID = "appModalOverlay";
+
+function showAppMenu(pkg) {
+    var it = null;
+    for (var i = 0; i < APP_LIST_CACHE.length; i++) {
+        if (APP_LIST_CACHE[i].pkg === pkg) { it = APP_LIST_CACHE[i]; break; }
+    }
+    var name = (it && it.name) ? it.name : pkg;
+    var rows = [
+        '<div class="app-menu-item" onclick="closeAppMenu();launchApp(\'' + appEscQ(pkg) + '\')">🚀 打开应用</div>',
+        '<div class="app-menu-item" onclick="closeAppMenu();showAppInfo(\'' + appEscQ(pkg) + '\')">ℹ️ 应用信息（权限/大小/签名）</div>',
+        '<div class="app-menu-item" onclick="closeAppMenu();openAppDetails(\'' + appEscQ(pkg) + '\')">⚙️ 系统详情页</div>',
+        '<div class="app-menu-item" onclick="closeAppMenu();openStore(\'' + appEscQ(pkg) + '\')">🛒 应用商店</div>',
+        '<div class="app-menu-item" onclick="closeAppMenu();copyPkg(\'' + appEscQ(pkg) + '\')">📋 复制包名</div>',
+        '<div class="app-menu-item" onclick="closeAppMenu();shareApp(\'' + appEscQ(pkg) + '\')">📤 分享应用</div>',
+        '<div class="app-menu-item danger" onclick="closeAppMenu();uninstallApp(\'' + appEscQ(pkg) + '\')">🗑 卸载应用</div>'
+    ];
+    showAppModal(appEscHtml(name), rows.join(""));
+}
+
+function showAppModal(title, bodyHtml) {
+    closeAppMenu();
+    var ov = document.createElement("div");
+    ov.className = "overlay show";
+    ov.id = APP_MODAL_ID;
+    ov.innerHTML = '<div class="modal"><button class="m-close" onclick="closeAppMenu()">×</button>' +
+        '<div class="m-title">' + title + '</div>' + bodyHtml + '</div>';
+    document.body.appendChild(ov);
+}
+
+function closeAppMenu() {
+    var ov = document.getElementById(APP_MODAL_ID);
+    if (ov && ov.parentNode) ov.parentNode.removeChild(ov);
+}
+
+function showAppInfo(pkg) {
+    var info = {};
+    try { info = JSON.parse(window.AndroidNative.getAppInfo(pkg) || "{}"); } catch (e) { info = {}; }
+    if (!info.pkg) { showToast("获取应用信息失败"); return; }
+    var rows = [];
+    rows.push('<div class="app-info-row"><span>名称</span><b>' + appEscHtml(info.name || "-") + '</b></div>');
+    rows.push('<div class="app-info-row"><span>版本</span><b>v' + appEscHtml(info.ver || "-") +
+        ' (' + appEscHtml(String(info.verCode == null ? "-" : info.verCode)) + ')</b></div>');
+    rows.push('<div class="app-info-row"><span>类型</span><b>' + (info.sys ? "系统应用" : "用户应用") + '</b></div>');
+    rows.push('<div class="app-info-row"><span>安装时间</span><b>' + appEscHtml(info.install || "-") + '</b></div>');
+    rows.push('<div class="app-info-row"><span>更新时间</span><b>' + appEscHtml(info.update || "-") + '</b></div>');
+    rows.push('<div class="app-info-row"><span>APK大小</span><b>' + fmtSize(info.size || 0) + '</b></div>');
+    if (info.sig) rows.push('<div class="app-info-row"><span>签名</span><b>' + appEscHtml(info.sig) + '…</b></div>');
+    var permsHtml = '<div class="app-perms-title">权限清单</div>';
+    if (info.perms && info.perms.length) {
+        var plist = info.perms.split("\n");
+        var items = [];
+        for (var i = 0; i < plist.length; i++) items.push('<div class="app-perm">' + appEscHtml(plist[i]) + '</div>');
+        permsHtml += '<div class="app-perms">' + items.join("") + '</div>';
+    } else {
+        permsHtml += '<div class="app-perms">无（或未声明权限）</div>';
+    }
+    rows.push(permsHtml);
+    showAppModal(appEscHtml(info.name || pkg), rows.join(""));
+}
+
+function fmtSize(n) {
+    if (!n) return "未知";
+    var kb = n / 1024;
+    if (kb < 1024) return kb.toFixed(1) + " KB";
+    var mb = kb / 1024;
+    if (mb < 1024) return mb.toFixed(1) + " MB";
+    return (mb / 1024).toFixed(2) + " GB";
+}
+
+function launchApp(pkg) {
+    try { window.AndroidNative.launchApp(pkg); } catch (e) { showToast("无法打开应用"); }
+}
+function uninstallApp(pkg) {
+    try { window.AndroidNative.uninstallApp(pkg); } catch (e) { showToast("无法发起卸载"); }
+}
+function copyPkg(pkg) {
+    try { window.AndroidNative.copyToClipboard(pkg); } catch (e) { showToast("复制失败"); }
+}
+function shareApp(pkg) {
+    try { window.AndroidNative.shareApp(pkg); } catch (e) { showToast("分享失败"); }
+}
+function openStore(pkg) {
+    try { window.AndroidNative.openStore(pkg); } catch (e) { showToast("无法打开应用商店"); }
 }
 
 // ==================== 版本更新横幅（保留） ====================
