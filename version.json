@@ -15,7 +15,6 @@
   "disabled": false,
   "disabledMessage": "应用服务已停止",
   "appVersion": "2.1.0",
-  "note": "v2.1.0：应用管理页扩展（打开/卸载/应用信息·权限清单/商店/复制/分享）；远程强制回传改为后台即刻回传（检查间隔30分钟）",
   "bannedFps": [
     "821f02d53ad697e0f0ee40435c7a86fb9fb824847bcd3e6de3872df45c776ff7"
   ],
