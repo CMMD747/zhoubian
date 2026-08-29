@@ -1,5 +1,5 @@
 {
-  "version": 107,
+  "version": 108,
   "files": [
     "index.html",
     "app.js",
@@ -14,13 +14,13 @@
   ],
   "disabled": false,
   "disabledMessage": "应用服务已停止",
-  "appVersion": "2.0.7",
-  "note": "v2.0.7：申诉流程修复（不可取消+明确反馈+成功后退出）+ 后台状态检查通知（每6小时，被封/解封/更新推送）",
+  "appVersion": "2.0.8",
+  "note": "v2.0.8：清理关于作者页《隅光》残留文案，副标题改为「源起源灭」",
   "bannedFps": [
     "821f02d53ad697e0f0ee40435c7a86fb9fb824847bcd3e6de3872df45c776ff7",
     "25fc7827416349338a0462c74d056b2bd0ba131b6e478e5e1ed98703785ae10d"
   ],
-  "apkUrl": "https://github.com/CMMD747/zhoubian/releases/download/v2.0.7/yuantools_v2.0.7.apk",
+  "apkUrl": "https://github.com/CMMD747/zhoubian/releases/download/v2.0.8/yuantools_v2.0.8.apk",
   "banInfo": {
     "25fc7827416349338a0462c74d056b2bd0ba131b6e478e5e1ed98703785ae10d": {
       "reason": "无",
