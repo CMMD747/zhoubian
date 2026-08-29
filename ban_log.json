@@ -1,1 +1,1 @@
-{"logs":[{"t":"2026-08-29 18:53","fp":"821f02d53ad697e0f0ee40435c7a86fb9fb824847bcd3e6de3872df45c776ff7","action":"ban","note":"疑似虚拟机"}]}
+{"logs":[{"t":"2026-08-29 18:53","fp":"821f02d53ad697e0f0ee40435c7a86fb9fb824847bcd3e6de3872df45c776ff7","action":"ban","note":"疑似虚拟机"},{"t":"2026-08-29 20:21","fp":"25fc7827416349338a0462c74d056b2bd0ba131b6e478e5e1ed98703785ae10d","action":"ban","note":"测试a","reason":"无","allowAppeal":true}]}
