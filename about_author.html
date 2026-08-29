@@ -26,6 +26,7 @@
   .chap { display:block; padding:8px 4px; color:#9c917f; font-size:15px; letter-spacing:1px; border-bottom:1px dashed #2a2620; cursor:pointer; }
   .chap:active { color:#e8e0d2; }
   .chap .n { color:#7d7160; margin-right:6px; }
+  .toc-end { text-align:center; color:#7d7160; font-size:14px; letter-spacing:6px; padding:20px 0 8px; }
   /* 阅读页 */
   #reader { display:none; }
   .reader-top { display:flex; justify-content:space-between; align-items:center; padding:10px 2px 12px; border-bottom:1px solid #3a352f; position:sticky; top:0; background:#1e1c1a; z-index:5; }
@@ -88,7 +89,7 @@
 <script>
 (function(){
   var BASE = 'https://cmmd747.github.io/zhoubian/novel/';
-  var FILES = ['楔子','第一卷','第二卷','第三卷','第四卷','第五卷','第六卷','第七卷','第八卷','尾声'];
+  var FILES = ['楔子','第一卷','第二卷','第三卷'];
   var CACHE_PREFIX = 'novel_xiaoyuan_v1_';
   var POS_KEY = 'xy_read_pos';
   var FONT_KEY = 'xy_font_size';
@@ -150,6 +151,7 @@
       }
       html += '</div></div>';
     }
+    html += '<div class="toc-end">—— 未完待续 ——</div>';
     tocListEl.innerHTML = html;
 
     // 卷折叠
