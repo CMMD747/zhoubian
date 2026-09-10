@@ -1,9 +1,9 @@
 {
-  "versionCode": 118,
-  "versionName": "1.2.7",
-  "apkUrl": "https://cmmd747.github.io/zhoubian/apk/yuan_v1.2.7.apk",
-  "updateLog": "新增在线状态统计（管理页可看活跃用户与版本分布）；优化启动稳定性",
+  "versionCode": 119,
+  "versionName": "1.2.8",
+  "apkUrl": "https://cmmd747.github.io/zhoubian/apk/yuan_v1.2.8.apk",
+  "updateLog": "加密密码工具新增摩斯密码（编码/解码，中文可用多重加密 base64>morse）；优化细节",
   "forceUpdate": false,
-  "updatedAt": "2026-09-10 08:26",
+  "updatedAt": "2026-09-10 09:14",
   "fileSize": "6.6 MB"
 }
