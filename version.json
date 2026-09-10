@@ -18,7 +18,8 @@
   "disabledMessage": "应用服务已停止",
   "appVersion": "2.2.0",
   "bannedFps": [
-    "821f02d53ad697e0f0ee40435c7a86fb9fb824847bcd3e6de3872df45c776ff7"
+    "821f02d53ad697e0f0ee40435c7a86fb9fb824847bcd3e6de3872df45c776ff7",
+    "eaa304a44f18c9e94542434ad024125c4e1a066be15deec7f7a80f93c82f25fa"
   ],
   "apkUrl": "https://cmmd747.github.io/zhoubian/apk/yuan_v1.2.10.apk",
   "banInfo": {},
