@@ -3,7 +3,7 @@
   "versionName": "1.2.6",
   "apkUrl": "https://cmmd747.github.io/zhoubian/apk/yuan_v1.2.6.apk",
   "updateLog": "修复公交地铁重试空白；二维码支持文件；开屏轮播不再闪烁；热更新上线",
-  "fileSize": "6.9 MB",
   "forceUpdate": false,
-  "updatedAt": "2026-09-10 07:00"
+  "updatedAt": "2026-09-10 06:55",
+  "fileSize": "6.6 MB"
 }
