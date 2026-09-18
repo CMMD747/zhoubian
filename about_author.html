@@ -6,6 +6,7 @@
 <title>长篇小说 · 小源</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body.mask-open { overflow:hidden; }
   body { font-family:"Songti SC","Noto Serif CJK SC","Source Han Serif SC","SimSun",serif; background:#1e1c1a; color:#c9c2b4; line-height:1.9; padding:28px 20px 60px; max-width:640px; margin:0 auto; }
   h1 { text-align:center; font-size:24px; color:#e8e0d2; letter-spacing:8px; margin:34px 0 10px; font-weight:600; }
   .subtitle { text-align:center; color:#8a7d6a; font-size:13px; letter-spacing:2px; margin-bottom:24px; border-bottom:1px solid #3a352f; padding-bottom:20px; }
@@ -193,6 +194,8 @@
     if (xyToastTimer) clearTimeout(xyToastTimer);
     xyToastTimer = setTimeout(function(){ el.classList.remove('show'); }, 1900);
   }
+  /* 弹层打开时锁住背景滚动（避免下层目录被拖动） */
+  function lockScroll(on){ try { document.body.classList[on ? 'add' : 'remove']('mask-open'); } catch(e){} }
 
   function parseVol(file, text){
     var lines = text.split(/\r?\n/);
@@ -442,8 +445,8 @@
       .then(function(d){ if (d && d.ok){ if (d.n) MY.n = d.n; if (typeof d.a === 'string' && d.a !== '') MY.a = d.a; saveLocal(); } })
       .catch(function(){}).then(updateAccChip);
   }
-  function openAcc(){ document.getElementById('accNick').value = MY.n || ''; renderAvGrid(); document.getElementById('accMask').classList.add('show'); }
-  function closeAcc(){ document.getElementById('accMask').classList.remove('show'); }
+  function openAcc(){ document.getElementById('accNick').value = MY.n || ''; renderAvGrid(); document.getElementById('accMask').classList.add('show'); lockScroll(true); }
+  function closeAcc(){ document.getElementById('accMask').classList.remove('show'); lockScroll(false); }
   function renderAvGrid(){
     var el = document.getElementById('accGrid'); if (!el) return;
     var cur = avatarIdx(MY.a), h = '';
@@ -455,12 +458,12 @@
     if (!n){ toast('请先填个昵称'); return; }
     MY.n = n;
     document.getElementById('accSave').disabled = true;
-    fetch(ACC_API, { method:'POST', headers:{ 'content-type':'application/json' }, cache:'no-store',
-      body: JSON.stringify({ u: MY.u, n: MY.n, a: String(avatarIdx(MY.a)) }) })
+    var au = ACC_API + '?w=1&u=' + encodeURIComponent(MY.u) + '&n=' + encodeURIComponent(MY.n) + '&a=' + encodeURIComponent(String(avatarIdx(MY.a)));
+    fetch(au, { cache:'no-store' })
       .then(function(r){ return r.json(); })
       .then(function(d){ document.getElementById('accSave').disabled = false;
         if (d && d.ok){ saveLocal(); updateAccChip(); closeAcc(); } else toast((d && d.err) || '保存失败'); })
-      .catch(function(){ document.getElementById('accSave').disabled = false; toast('网络错误'); });
+      .catch(function(e){ document.getElementById('accSave').disabled = false; try { console.log('saveAcc fail', e); } catch(_){} toast('保存失败，请检查网络后重试'); });
   }
 
   /* ============ 段评 ============ */
@@ -492,11 +495,11 @@
     pcReplyTo = '';
     var paras = NOVEL[f.vi].chapters[f.ci].paras;
     document.getElementById('pcQuote').textContent = (paras[pIdx] || '').slice(0, 90);
-    document.getElementById('pcMask').classList.add('show');
+    document.getElementById('pcMask').classList.add('show'); lockScroll(true);
     setReplyHint();
     renderPcList();
   }
-  function closePc(){ document.getElementById('pcMask').classList.remove('show'); }
+  function closePc(){ document.getElementById('pcMask').classList.remove('show'); lockScroll(false); }
   function fmtTime(t){
     var d = new Date(t); function z(n){ return n < 10 ? '0' + n : '' + n; }
     return (d.getMonth()+1) + '-' + d.getDate() + ' ' + z(d.getHours()) + ':' + z(d.getMinutes());
@@ -545,8 +548,8 @@
     var likes = c.likes = c.likes || [];
     var k = likes.indexOf(MY.u); if (k >= 0) likes.splice(k, 1); else likes.push(MY.u);
     renderPcList();
-    fetch(PC_API + '/like', { method:'POST', headers:{ 'content-type':'application/json' }, cache:'no-store',
-      body: JSON.stringify({ f: FILES[pcCur.vi], c: pcCur.ci, id: id, uid: MY.u }) })
+    var lu = PC_API + '/like?w=1&f=' + encodeURIComponent(FILES[pcCur.vi]) + '&c=' + pcCur.ci + '&id=' + encodeURIComponent(id) + '&uid=' + encodeURIComponent(MY.u);
+    fetch(lu, { cache:'no-store' })
       .then(function(r){ return r.json(); })
       .then(function(d){ if (d && d.ok && d.likes){ c.likes = d.likes; renderPcList(); } })
       .catch(function(){});
@@ -561,7 +564,9 @@
     inp.disabled = true;
     var payload = { f: FILES[pcCur.vi], c: pcCur.ci, p: pcCur.p, x: x, n: MY.n, a: String(avatarIdx(MY.a)), uid: MY.u };
     if (pcReplyTo) payload.parent = pcReplyTo;
-    fetch(PC_API, { method:'POST', headers:{ 'content-type':'application/json' }, cache:'no-store', body: JSON.stringify(payload) })
+    var qs = 'w=1&f=' + encodeURIComponent(payload.f) + '&c=' + payload.c + '&p=' + payload.p + '&x=' + encodeURIComponent(payload.x) + '&uid=' + encodeURIComponent(payload.uid) + '&n=' + encodeURIComponent(payload.n) + '&a=' + encodeURIComponent(payload.a);
+    if (payload.parent) qs += '&parent=' + encodeURIComponent(payload.parent);
+    fetch(PC_API + '?' + qs, { cache:'no-store' })
       .then(function(r){ return r.json(); })
       .then(function(d){
         inp.disabled = false;
@@ -575,7 +580,7 @@
         }
         toast((d && d.msg) || (d && d.err) || '发送失败');
       })
-      .catch(function(){ inp.disabled = false; toast('网络错误，稍后再试'); });
+      .catch(function(e){ inp.disabled = false; try { console.log('sendPc fail', e); } catch(_){} toast('发送失败，请检查网络后重试'); });
   }
   document.getElementById('pcClose').addEventListener('click', closePc);
   document.getElementById('pcMask').addEventListener('click', function(e){ if (e.target === this) closePc(); });
