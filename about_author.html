@@ -551,7 +551,14 @@
       .then(function(r){ return r.json(); })
       .then(function(d){
         inp.disabled = false;
-        if (d && d.ok){ inp.value = ''; pcReplyTo = ''; setReplyHint(); saveLocal(); return fetchPc(pcCur.vi, pcCur.ci).then(function(){ renderPcList(); applyBadges(); }); }
+        if (d && d.ok){
+          var k = pcKey(pcCur.vi, pcCur.ci);
+          var arr = pcCache[k] || (pcCache[k] = []);
+          arr.push({ id: d.id || ('m' + Date.now()), p: pcCur.p, t: Date.now(), x: x, uid: MY.u, n: MY.n, a: String(avatarIdx(MY.a)), likes: [], parent: pcReplyTo || '' });
+          inp.value = ''; pcReplyTo = ''; setReplyHint(); saveLocal();
+          renderPcList(); applyBadges();
+          return;
+        }
         alert((d && d.msg) || (d && d.err) || '发送失败');
       })
       .catch(function(){ inp.disabled = false; alert('网络错误，稍后再试'); });
