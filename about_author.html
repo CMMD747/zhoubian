@@ -85,6 +85,8 @@
   .pc-act { display:flex; gap:14px; align-items:center; margin-top:5px; }
   .pc-act .pc-like, .pc-act .pc-re { color:#8a7d6a; font-size:12px; cursor:pointer; }
   .pc-act .pc-like.on { color:#c9a86a; }
+  .pc-act .pc-del { color:#8a7d6a; font-size:12px; cursor:pointer; }
+  .pc-act .pc-del.arm { color:#e07a5f; font-weight:600; }
   .pc-act .tm { color:#6f6557; font-size:11px; margin:0; }
   .pc-me { color:#7d7160; font-size:10.5px; border:1px solid #4a4238; border-radius:8px; padding:0 5px; }
   .pc-reply { margin-top:8px; padding-left:10px; border-left:2px solid #3a352f; border-bottom:none; }
@@ -431,6 +433,7 @@
   var pcCache = {};
   var pcCur = null;
   var pcReplyTo = '';
+  var pcDelArm = '', pcDelTimer = null;
   function uuidAnon(){
     var u = null;
     try { u = localStorage.getItem('xy_uid'); } catch(e){}
@@ -541,7 +544,9 @@
     h += '<div class="who">' + esc(c.n || '读者') + (liked ? ' <span class="pc-me">我</span>' : '') + '</div>';
     h += '<div class="txt">' + esc(c.x || '') + '</div>';
     h += '<div class="pc-act"><span class="pc-like' + (liked ? ' on' : '') + '" data-id="' + esc(c.id||'') + '">👍 ' + (likes.length || '') + '</span>';
-    h += '<span class="pc-re" data-id="' + esc(c.id||'') + '">回复</span><span class="tm">' + fmtTime(c.t||0) + '</span></div>';
+    h += '<span class="pc-re" data-id="' + esc(c.id||'') + '">回复</span>';
+    if (c.uid === MY.u) { h += '<span class="pc-del" data-id="' + esc(c.id||'') + '">删除</span>'; }
+    h += '<span class="tm">' + fmtTime(c.t||0) + '</span></div>';
     for (var j = 0; j < (replies||[]).length; j++){ h += pcItemHtml(replies[j], [], depth + 1); }
     h += '</div></div>';
     return h;
@@ -572,6 +577,29 @@
       .then(function(r){ return r.json(); })
       .then(function(d){ if (d && d.ok && d.likes){ c.likes = d.likes; renderPcList(); } })
       .catch(function(){});
+  }
+  function pcKillSet(list, id){
+    var kill = {}; kill[id] = 1; var ch = true;
+    while (ch){ ch = false;
+      for (var i = 0; i < list.length; i++){ var it = list[i]; if (it && it.parent && kill[it.parent] && !kill[it.id]){ kill[it.id] = 1; ch = true; } }
+    }
+    return kill;
+  }
+  function deletePc(id){
+    if (!pcCur) return;
+    var k = pcKey(pcCur.vi, pcCur.ci);
+    var list = pcCache[k] || [];
+    var kill = pcKillSet(list, id);
+    var u = PC_API + '/del?w=1&f=' + encodeURIComponent(FILES[pcCur.vi]) + '&c=' + pcCur.ci + '&id=' + encodeURIComponent(id) + '&uid=' + encodeURIComponent(MY.u);
+    fetch(u, { cache:'no-store' })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (d && d.ok){
+          pcCache[k] = list.filter(function(x){ return !(x && kill[x.id]); });
+          renderPcList(); applyBadges(); toast('已删除');
+        } else { toast((d && d.msg) || '删除失败'); }
+      })
+      .catch(function(){ toast('删除失败，请检查网络后重试'); });
   }
   function sendPc(){
     if (!pcCur) return;
@@ -609,6 +637,16 @@
     var t = e.target; if (!t || !t.className) return;
     var cl = String(t.className);
     if (cl.indexOf('pc-like') >= 0){ toggleLike(t.getAttribute('data-id')); }
+    else if (cl.indexOf('pc-del') >= 0){
+      var did = t.getAttribute('data-id');
+      if (pcDelArm === did){ if (pcDelTimer) clearTimeout(pcDelTimer); pcDelArm = ''; deletePc(did); }
+      else {
+        pcDelArm = did;
+        t.textContent = '确认删除'; t.className = cl + ' arm';
+        if (pcDelTimer) clearTimeout(pcDelTimer);
+        pcDelTimer = setTimeout(function(){ pcDelArm = ''; renderPcList(); }, 3000);
+      }
+    }
     else if (cl.indexOf('pc-re') >= 0){ pcReplyTo = t.getAttribute('data-id'); setReplyHint(); var i = document.getElementById('pcText'); if (i) i.focus(); }
   });
   document.getElementById('accChip').addEventListener('click', openAcc);
