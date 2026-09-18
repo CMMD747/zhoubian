@@ -132,7 +132,7 @@
   </div>
   <div class="contact">
     <p>联系我们</p>
-    <p>作者 QQ：<a href="mqq://card/show_pslcard?src_type=internal&version=1&uin=445256409">445256409</a></p>
+    <p>作者 QQ：<a href="mqqwpa://im/chat?chat_type=wpa&uin=445256409&version=1&src_type=web" target="_top" onclick="return tryContactQQ(event)">445256409</a></p>
   </div>
 </div>
 
@@ -215,6 +215,26 @@
     el.classList.add('show');
     if (xyToastTimer) clearTimeout(xyToastTimer);
     xyToastTimer = setTimeout(function(){ el.classList.remove('show'); }, 1900);
+  }
+  /* 加作者QQ：优先走 App 原生桥；否则用 target=_top 让宿主 WebViewClient 拦截 mqqwpa:// */
+  function tryContactQQ(e){
+    var qq = '445256409';
+    try {
+      if (window.AndroidNative && AndroidNative.addAuthorQQ){
+        AndroidNative.addAuthorQQ();
+        if (e && e.preventDefault) e.preventDefault();
+        return false;
+      }
+    } catch(err){}
+    // 无原生桥（浏览器直开或跨域 iframe 未注入桥）：尝试顶层跳转，命中宿主的 URL 拦截
+    try {
+      if (window.top && window.top !== window && e && e.preventDefault){
+        e.preventDefault();
+        window.top.location.href = 'mqqwpa://im/chat?chat_type=wpa&uin=' + qq + '&version=1&src_type=web';
+        return false;
+      }
+    } catch(err){}
+    return true;
   }
   /* 弹层打开时锁住背景滚动（避免下层目录被拖动） */
   var _lockY = 0;
