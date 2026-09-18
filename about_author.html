@@ -28,6 +28,10 @@
   .chap:active { color:#e8e0d2; }
   .chap .n { color:#7d7160; margin-right:6px; }
   .toc-end { text-align:center; color:#7d7160; font-size:14px; letter-spacing:6px; padding:20px 0 8px; }
+  .bookstat { text-align:center; color:#8a7d6a; font-size:13px; letter-spacing:2px; margin:0 0 14px; }
+  .vol-head .wc { color:#7d7160; font-size:12px; letter-spacing:0; margin-left:auto; margin-right:10px; }
+  .chap .wc { color:#6f6557; font-size:11.5px; margin-left:7px; }
+  .chap-stat { text-align:center; color:#7d7160; font-size:12px; letter-spacing:1px; margin:-14px 0 22px; }
   /* 阅读页 */
   #reader { display:none; }
   .reader-top { display:flex; justify-content:space-between; align-items:center; padding:10px 2px 12px; border-bottom:1px solid #3a352f; position:sticky; top:0; background:#1e1c1a; z-index:5; }
@@ -115,6 +119,7 @@
 <div id="bookHome">
   <h1>小源</h1>
   <div class="subtitle">长篇小说 · 回忆录体（1885—1980）</div>
+  <div id="bookStat" class="bookstat"></div>
   <div class="intro">《小源》是一部回忆录体长篇小说。主人公小源，生于光绪十一年（1885年）八月初二，河南扶沟县刘家村人，卒于1980年腊月二十三，享年九十五岁。全书以第一人称，从出生写到临终，横跨晚清、民国、抗战与新中国。记的是一块土地、几亩庄稼、一家人的吃饭穿衣，和一个农民一辈子的盼与等。</div>
   <div id="status" class="status">正在从云端加载正文…</div>
   <div class="btn-row">
@@ -250,6 +255,20 @@
     return { file: file, title: volTitle, chapters: chapters };
   }
 
+  /* ---- 字数统计 ---- */
+  var TOTAL_WORDS = 0;
+  function fmtNum(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+  function wc(t){ return String(t || '').replace(/\s/g, '').length; }
+  function chW(c){ var n = 0; for (var i = 0; i < c.paras.length; i++) n += wc(c.paras[i]); return n; }
+  function volW(v){ var n = 0; for (var i = 0; i < v.chapters.length; i++) n += chW(v.chapters[i]); return n; }
+  function updateBookStat(){
+    var cn = 0; TOTAL_WORDS = 0;
+    for (var vi = 0; vi < NOVEL.length; vi++){ cn += NOVEL[vi].chapters.length; TOTAL_WORDS += volW(NOVEL[vi]); }
+    var el = document.getElementById('bookStat');
+    if (el) el.textContent = '共 ' + cn + ' 章 · 全书 ' + fmtNum(TOTAL_WORDS) + ' 字';
+    return TOTAL_WORDS;
+  }
+
   function buildFlat(){
     FLAT = [];
     for (var vi = 0; vi < NOVEL.length; vi++){
@@ -265,10 +284,10 @@
       var vol = NOVEL[vi];
       var open = vi === 0 ? ' open' : '';
       html += '<div class="vol' + open + '" data-vi="' + vi + '">';
-      html += '<div class="vol-head">' + esc(vol.title) + '<span class="arrow">▶</span></div>';
+      html += '<div class="vol-head"><span class="vt">' + esc(vol.title) + '</span><span class="wc">' + fmtNum(volW(vol)) + ' 字</span><span class="arrow">▶</span></div>';
       html += '<div class="vol-chaps">';
       for (var ci = 0; ci < vol.chapters.length; ci++){
-        html += '<span class="chap" data-vi="' + vi + '" data-ci="' + ci + '"><span class="n">' + (ci + 1) + '.</span>' + esc(vol.chapters[ci].title) + '</span>';
+        html += '<span class="chap" data-vi="' + vi + '" data-ci="' + ci + '"><span class="n">' + (ci + 1) + '.</span>' + esc(vol.chapters[ci].title) + '<span class="wc">' + fmtNum(chW(vol.chapters[ci])) + ' 字</span></span>';
       }
       html += '</div></div>';
     }
@@ -306,6 +325,7 @@
     var chap = NOVEL[f.vi].chapters[f.ci];
     var fs = parseInt(localStorage.getItem(FONT_KEY) || '16', 10);
     var html = '<h3>' + esc(chap.title) + '</h3>';
+    html += '<div class="chap-stat">本章 ' + fmtNum(chW(chap)) + ' 字 · 全书 ' + fmtNum(TOTAL_WORDS) + ' 字</div>';
     for (var i = 0; i < chap.paras.length; i++){
       html += '<p data-p="' + i + '">' + esc(chap.paras[i]) + '<span class="pcnt">评论</span></p>';
     }
@@ -434,6 +454,7 @@
       if (r) NOVEL.push(parseVol(r.name, r.text));
     }
     buildFlat();
+    updateBookStat();
     renderToc();
     updateContinue();
     if (NOVEL.length === 0){ statusEl.textContent = '正文加载失败。'; }
