@@ -80,7 +80,7 @@
   #accSave { width:100%; background:#a8906c; color:#1e1c1a; border:none; border-radius:9px; padding:11px; font-size:15px; letter-spacing:3px; }
   /* ===== 段评增强 ===== */
   .pc-item { display:flex; gap:9px; }
-  .pc-av { font-size:20px; line-height:1.5; flex:0 0 auto; }
+  .pc-av { width:30px; height:30px; line-height:26px; text-align:center; flex:0 0 auto; font-size:17px; border:2px solid #4a4238; border-radius:50%; background:#201d1a; }
   .pc-body { flex:1; min-width:0; }
   .pc-act { display:flex; gap:14px; align-items:center; margin-top:5px; }
   .pc-act .pc-like, .pc-act .pc-re { color:#8a7d6a; font-size:12px; cursor:pointer; }
@@ -450,6 +450,8 @@
   }
   function avatarIdx(v){ var i = parseInt((v===undefined||v===null||v==='')?MY.a:v, 10); if (isNaN(i)||i<0||i>=AVATARS.length) i = 0; return i; }
   function avatarOf(o){ return AVATARS[avatarIdx(o && o.a)]; }
+  function uidHue(id){ var h = 0, s = String(id || ''); for (var i = 0; i < s.length; i++){ h = (h * 31 + s.charCodeAt(i)) >>> 0; } return h % 360; }
+  function ringOf(o){ return 'hsl(' + uidHue((o && o.uid) || (o && o.n) || '') + ',52%,56%)'; }
   function updateAccChip(){
     var chip = document.getElementById('accChip'); if (!chip) return;
     chip.innerHTML = '<span class="acc-av">' + avatarOf({a:MY.a}) + '</span>' + (MY.n ? esc(MY.n) : '设置昵称');
@@ -472,13 +474,14 @@
   function saveAcc(){
     var n = (document.getElementById('accNick').value || '').trim().slice(0, 16);
     if (!n){ toast('请先填个昵称'); return; }
+    var prevN = MY.n;
     MY.n = n;
     document.getElementById('accSave').disabled = true;
     var au = ACC_API + '?w=1&u=' + encodeURIComponent(MY.u) + '&n=' + encodeURIComponent(MY.n) + '&a=' + encodeURIComponent(String(avatarIdx(MY.a)));
     fetch(au, { cache:'no-store' })
       .then(function(r){ return r.json(); })
       .then(function(d){ document.getElementById('accSave').disabled = false;
-        if (d && d.ok){ saveLocal(); updateAccChip(); closeAcc(); } else toast((d && d.err) || '保存失败'); })
+        if (d && d.ok){ saveLocal(); updateAccChip(); closeAcc(); } else { MY.n = prevN; toast((d && d.msg) || '保存失败'); } })
       .catch(function(e){ document.getElementById('accSave').disabled = false; try { console.log('saveAcc fail', e); } catch(_){} toast('保存失败，请检查网络后重试'); });
   }
 
@@ -534,7 +537,7 @@
     var likes = c.likes || [], liked = false;
     for (var i = 0; i < likes.length; i++){ if (likes[i] === MY.u) liked = true; }
     var h = '<div class="pc-item' + (depth ? ' pc-reply' : '') + '">';
-    h += '<div class="pc-av">' + avatarOf(c) + '</div><div class="pc-body">';
+    h += '<div class="pc-av" style="border-color:' + ringOf(c) + '">' + avatarOf(c) + '</div><div class="pc-body">';
     h += '<div class="who">' + esc(c.n || '读者') + (liked ? ' <span class="pc-me">我</span>' : '') + '</div>';
     h += '<div class="txt">' + esc(c.x || '') + '</div>';
     h += '<div class="pc-act"><span class="pc-like' + (liked ? ' on' : '') + '" data-id="' + esc(c.id||'') + '">👍 ' + (likes.length || '') + '</span>';
