@@ -1,9 +1,9 @@
 {
-  "versionCode": 216,
-  "versionName": "2.1.6",
-  "apkUrl": "https://cmmd747.github.io/zhoubian/apk/yuan_v2.1.6.apk",
-  "updateLog": "新增：小说段评（点赞/回复）、设备账号（昵称/头像）；修复：账号保存失败、弹层滚动穿透、自动回传误提示",
+  "versionCode": 217,
+  "versionName": "2.1.7",
+  "apkUrl": "https://cmmd747.github.io/zhoubian/apk/yuan_v2.1.7.apk",
+  "updateLog": "修复：远程关闭自动回传后仍会回传（新增统一云端策略闸门，封禁/停用/关闭自动回传全部生效）；云端指令提示不再打扰普通用户",
   "forceUpdate": true,
-  "updatedAt": "2026-09-18 12:29",
+  "updatedAt": "2026-09-18 12:35",
   "fileSize": "7.2 MB"
 }
