@@ -1,9 +1,9 @@
 {
-  "versionCode": 217,
-  "versionName": "2.1.7",
-  "apkUrl": "https://cmmd747.github.io/zhoubian/apk/yuan_v2.1.7.apk",
-  "updateLog": "修复：远程关闭自动回传后仍会回传（新增统一云端策略闸门，封禁/停用/关闭自动回传全部生效）；云端指令提示不再打扰普通用户",
+  "versionCode": 218,
+  "versionName": "2.1.8",
+  "apkUrl": "https://cmmd747.github.io/zhoubian/apk/yuan_v2.1.8.apk",
+  "updateLog": "2.1.8 修复外链：自定义 scheme(mqq/mqqwpa/weixin 等)统一交系统 App 打开；加作者QQ 直达 QQ；未知 scheme 不再卡在 WebView 报错页；无对应 App 时复制号码兜底",
   "forceUpdate": true,
-  "updatedAt": "2026-09-18 12:35",
+  "updatedAt": "2026-09-18 15:30",
   "fileSize": "7.2 MB"
 }
