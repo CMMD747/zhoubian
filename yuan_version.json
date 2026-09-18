@@ -1,9 +1,9 @@
 {
-  "versionCode": 2110,
-  "versionName": "2.1.10",
-  "apkUrl": "https://cmmd747.github.io/zhoubian/apk/yuan_v2.1.10.apk",
-  "updateLog": "2.1.10 紧急修复：2.1.8/2.1.9 因 URL 拦截误把内嵌 iframe（隐私政策/用户协议）搬到主框架，导致打开 App 即被整页换成条款页且无法返回。现改为：子框架导航一律不劫持；file: 交 WebView 内部处理；自定义 scheme（QQ/微信等）仍交系统打开",
+  "versionCode": 2111,
+  "versionName": "2.1.11",
+  "apkUrl": "https://cmmd747.github.io/zhoubian/apk/yuan_v2.1.11.apk",
+  "updateLog": "2.1.11 修复 AI 对话：点击修改自己的历史消息后，会同时出现两条用户消息（编辑时重复 push/渲染一次）。现改为编辑只截断历史，由发送逻辑统一加入一次",
   "forceUpdate": true,
-  "updatedAt": "2026-09-18 15:48",
+  "updatedAt": "2026-09-18 16:10",
   "fileSize": "7.2 MB"
 }
