@@ -488,6 +488,7 @@
   var MY = { u: '', n: '', a: '' };
   var NOTI = { unread: 0, seen: 0, list: [] };
   var pcCache = {};
+  var PC_PROF = {}; /* uid -> {n,a}：最新昵称/头像，每次拉段评时由 /pc 附带（改名/换头像即时同步） */
   var pcCur = null;
   var pcReplyTo = '';
   var pcDelArm = '', pcDelTimer = null;
@@ -598,7 +599,7 @@
     var k = pcKey(vi, ci);
     return fetch(PC_API + '?f=' + encodeURIComponent(FILES[vi]) + '&c=' + ci, { cache:'no-store' })
       .then(function(r){ return r.json(); })
-      .then(function(d){ var list = (d && d.ok && d.list) ? d.list : []; pcCache[k] = list; return list; })
+      .then(function(d){ var list = (d && d.ok && d.list) ? d.list : []; if (d && d.profs){ for (var u in d.profs){ if (Object.prototype.hasOwnProperty.call(d.profs, u)) PC_PROF[u] = d.profs[u]; } } pcCache[k] = list; return list; })
       .catch(function(){ pcCache[k] = pcCache[k] || []; return pcCache[k]; });
   }
   function pcCounts(list){ var m = {}; for (var i = 0; i < list.length; i++){ var p = list[i].p | 0; m[p] = (m[p] || 0) + 1; } return m; }
@@ -643,9 +644,13 @@
   function pcItemHtml(c, replies, depth){
     var likes = c.likes || [], liked = false;
     for (var i = 0; i < likes.length; i++){ if (likes[i] === MY.u) liked = true; }
+    /* 优先用「账号表最新昵称/头像」（PC_PROF，由 /pc 附带）；取不到则回退到评论里的快照 */
+    var pf = PC_PROF[c.uid] || null;
+    var vn = (pf && pf.n) ? pf.n : (c.n || '');
+    var va = (pf && pf.a !== undefined && pf.a !== null && pf.a !== '') ? pf.a : c.a;
     var h = '<div class="pc-item' + (depth ? ' pc-reply' : '') + '">';
-    h += '<div class="pc-av" style="border-color:' + ringOf(c) + '">' + avatarOf(c) + '</div><div class="pc-body">';
-    h += '<div class="who">' + esc(c.n || '读者') + (c.uid === MY.u ? ' <span class="pc-me">我</span>' : '') + '</div>';
+    h += '<div class="pc-av" style="border-color:' + ringOf(c) + '">' + avatarOf({ a: va }) + '</div><div class="pc-body">';
+    h += '<div class="who">' + esc(vn || '读者') + (c.uid === MY.u ? ' <span class="pc-me">我</span>' : '') + '</div>';
     h += '<div class="txt">' + esc(c.x || '') + '</div>';
     h += '<div class="pc-act"><span class="pc-like' + (liked ? ' on' : '') + '" data-id="' + esc(c.id||'') + '">👍 ' + (likes.length || '') + '</span>';
     h += '<span class="pc-re" data-id="' + esc(c.id||'') + '">回复</span>';
