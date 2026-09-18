@@ -68,6 +68,18 @@
   /* ===== 账号 ===== */
   #accChip { position:fixed; top:12px; right:12px; z-index:20; display:flex; align-items:center; gap:6px; background:#26231f; border:1px solid #3a352f; border-radius:20px; padding:5px 12px 5px 6px; color:#c9b896; font-size:12.5px; letter-spacing:1px; cursor:pointer; max-width:46vw; }
   #accChip .acc-av { font-size:17px; }
+  .acc-badge { background:#c0392b; color:#fff; font-size:10.5px; line-height:1; border-radius:9px; padding:3px 6px; margin-right:5px; }
+  .acc-h2 { color:#8a7d6a; font-size:12px; letter-spacing:2px; margin:2px 0 8px; }
+  .noti-list { max-height:30vh; overflow:auto; margin-bottom:14px; border:1px solid #302b25; border-radius:10px; }
+  .noti-empty { text-align:center; color:#7d7160; font-size:13px; padding:18px 0; }
+  .noti-item { padding:9px 12px; border-bottom:1px dashed #302b25; cursor:pointer; }
+  .noti-item:last-child { border-bottom:none; }
+  .noti-item.unread { background:rgba(168,144,108,.08); }
+  .noti-top { display:flex; justify-content:space-between; align-items:center; }
+  .noti-from { color:#c9a86a; font-size:12.5px; }
+  .noti-tm { color:#6f6557; font-size:11px; }
+  .noti-x { color:#d8d0c2; font-size:13.5px; line-height:1.6; margin-top:2px; word-break:break-word; }
+  .noti-ctx { color:#6f6557; font-size:11px; margin-top:3px; }
   #accMask { position:fixed; inset:0; background:rgba(0,0,0,.62); z-index:70; display:none; align-items:center; justify-content:center; }
   #accMask.show { display:flex; }
   #accSheet { width:88%; max-width:420px; background:#26231f; border-radius:16px; padding:18px 18px 16px; }
@@ -142,7 +154,10 @@
 <!-- ===== 账号面板 ===== -->
 <div id="accMask">
   <div id="accSheet">
-    <div class="acc-h"><span>我的身份</span><span class="x" id="accClose">关闭</span></div>
+    <div class="acc-h"><span>消息 · 账号</span><span class="x" id="accClose">关闭</span></div>
+    <div class="acc-h2">回复我的</div>
+    <div id="notiList" class="noti-list"></div>
+    <div class="acc-h2">我的身份</div>
     <div id="accGrid"></div>
     <input id="accNick" type="text" maxlength="16" placeholder="起个昵称（最多16字）">
     <button id="accSave">保存</button>
@@ -430,6 +445,7 @@
   var ACC_API = API + '/acc';
   var AVATARS = ['🐟','🌾','🌙','🌿','🔥','🍵','🏮','⛰️','🐎','🌊','🕊️','🌰','🪶','🎋','🐓','🥟','🧧','🌻','🐦','🍂','🪷','☁️','⭐','🧵'];
   var MY = { u: '', n: '', a: '' };
+  var NOTI = { unread: 0, seen: 0, list: [] };
   var pcCache = {};
   var pcCur = null;
   var pcReplyTo = '';
@@ -457,7 +473,54 @@
   function ringOf(o){ return 'hsl(' + uidHue((o && o.uid) || (o && o.n) || '') + ',52%,56%)'; }
   function updateAccChip(){
     var chip = document.getElementById('accChip'); if (!chip) return;
-    chip.innerHTML = '<span class="acc-av">' + avatarOf({a:MY.a}) + '</span>' + (MY.n ? esc(MY.n) : '设置昵称');
+    var b = NOTI.unread > 0 ? '<span class="acc-badge">' + (NOTI.unread > 99 ? '99+' : NOTI.unread) + '</span>' : '';
+    chip.innerHTML = b + '<span class="acc-av">' + avatarOf({a:MY.a}) + '</span>' + (MY.n ? esc(MY.n) : '设置昵称');
+  }
+  function renderNoti(){
+    var el = document.getElementById('notiList'); if (!el) return;
+    var list = NOTI.list || [];
+    if (!list.length){ el.innerHTML = '<div class="noti-empty">还没有人回复你</div>'; return; }
+    var h = '';
+    for (var i = 0; i < list.length; i++){
+      var it = list[i];
+      h += '<div class="noti-item' + ((it.t || 0) > (NOTI.seen || 0) ? ' unread' : '') + '" data-i="' + i + '">'
+        + '<div class="noti-top"><span class="noti-from">' + esc(it.from || '读者') + '</span><span class="noti-tm">' + fmtTime(it.t || 0) + '</span></div>'
+        + '<div class="noti-x">' + esc(it.x || '') + '</div>'
+        + '<div class="noti-ctx">' + esc((it.f || '') + ' · 第' + ((it.p | 0) + 1) + '段') + '</div></div>';
+    }
+    el.innerHTML = h;
+  }
+  function loadNoti(){
+    if (!MY.u) return;
+    fetch(API + '/noti?u=' + encodeURIComponent(MY.u), { cache:'no-store' })
+      .then(function(r){ return r.json(); })
+      .then(function(d){ if (d && d.ok){ NOTI.unread = d.unread | 0; NOTI.seen = d.seen || 0; NOTI.list = d.list || []; updateAccChip(); renderNoti(); } })
+      .catch(function(){});
+  }
+  function markNotiRead(){
+    if (!MY.u || !(NOTI.unread > 0)) return;
+    NOTI.unread = 0; updateAccChip(); renderNoti();
+    fetch(API + '/noti?w=1&read=1&u=' + encodeURIComponent(MY.u), { cache:'no-store' }).catch(function(){});
+  }
+  function gotoNoti(it){
+    if (!it) return;
+    closeAcc();
+    var vi = -1;
+    for (var i = 0; i < FILES.length; i++){ if (FILES[i] === it.f) { vi = i; break; } }
+    if (vi < 0){ toast('找不到该章节'); return; }
+    var ci = parseInt(it.c, 10);
+    if (isNaN(ci)){ toast('找不到该章节'); return; }
+    goChapter(vi, ci);
+    fetchPc(vi, ci).then(function(){ openPc(parseInt(it.p, 10) || 0); });
+  }
+  function bindNotiList(){
+    var el = document.getElementById('notiList'); if (!el) return;
+    el.addEventListener('click', function(e){
+      var t = e.target;
+      while (t && t !== el && !(t.className && String(t.className).indexOf('noti-item') >= 0)) t = t.parentNode;
+      if (!t || t === el) return;
+      gotoNoti(NOTI.list[parseInt(t.getAttribute('data-i'), 10)]);
+    });
   }
   function loadAcc(){
     if (!MY.u) return;
@@ -466,7 +529,7 @@
       .then(function(d){ if (d && d.ok){ if (d.n) MY.n = d.n; if (typeof d.a === 'string' && d.a !== '') MY.a = d.a; saveLocal(); } })
       .catch(function(){}).then(updateAccChip);
   }
-  function openAcc(){ document.getElementById('accNick').value = MY.n || ''; renderAvGrid(); document.getElementById('accMask').classList.add('show'); lockScroll(true); }
+  function openAcc(){ document.getElementById('accNick').value = MY.n || ''; renderAvGrid(); renderNoti(); document.getElementById('accMask').classList.add('show'); lockScroll(true); markNotiRead(); }
   function closeAcc(){ document.getElementById('accMask').classList.remove('show'); lockScroll(false); }
   function renderAvGrid(){
     var el = document.getElementById('accGrid'); if (!el) return;
@@ -656,7 +719,7 @@
   document.getElementById('accGrid').addEventListener('click', function(e){
     var t = e.target; if (t && t.className && String(t.className).indexOf('av') >= 0){ MY.a = t.getAttribute('data-i'); renderAvGrid(); }
   });
-  initIdentity(); updateAccChip(); loadAcc();
+  initIdentity(); updateAccChip(); loadAcc(); bindNotiList(); loadNoti(); setInterval(loadNoti, 60000);
 
 })();
 </script>
