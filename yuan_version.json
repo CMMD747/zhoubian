@@ -1,9 +1,9 @@
 {
-  "versionCode": 2113,
-  "versionName": "2.1.13",
-  "apkUrl": "https://cmmd747.github.io/zhoubian/apk/yuan_v2.1.13.apk",
-  "updateLog": "2.1.13 AI对话：支持对同一条消息原样重新发送/重生成（编辑弹窗不再拦截相同内容）；模型繁忙改为指数退避自动重试4次，失败气泡带「重试」按钮",
+  "versionCode": 2114,
+  "versionName": "2.1.14",
+  "apkUrl": "https://cmmd747.github.io/zhoubian/apk/yuan_v2.1.14.apk",
+  "updateLog": "2.1.14 AI额度：口径改为按北京时间 00:00 重置（原为 UTC 08:00），并在界面标注重置时间",
   "forceUpdate": true,
-  "updatedAt": "2026-09-18 16:24",
+  "updatedAt": "2026-09-18 16:29",
   "fileSize": "7.2 MB"
 }
