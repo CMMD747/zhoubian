@@ -1,9 +1,9 @@
 {
-  "versionCode": 2111,
-  "versionName": "2.1.11",
-  "apkUrl": "https://cmmd747.github.io/zhoubian/apk/yuan_v2.1.11.apk",
-  "updateLog": "2.1.11 修复 AI 对话：点击修改自己的历史消息后，会同时出现两条用户消息（编辑时重复 push/渲染一次）。现改为编辑只截断历史，由发送逻辑统一加入一次",
+  "versionCode": 2112,
+  "versionName": "2.1.12",
+  "apkUrl": "https://cmmd747.github.io/zhoubian/apk/yuan_v2.1.12.apk",
+  "updateLog": "2.1.12 修复 AI 对话编辑：改用应用内自绘弹窗（原 window.prompt 会带出网页网址）；并保持编辑后只出现一条用户消息",
   "forceUpdate": true,
-  "updatedAt": "2026-09-18 16:10",
+  "updatedAt": "2026-09-18 16:19",
   "fileSize": "7.2 MB"
 }
