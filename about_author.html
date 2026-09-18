@@ -64,6 +64,31 @@
   .pc-input { display:flex; gap:8px; padding:10px 12px; border-top:1px solid #3a352f; }
   .pc-input input { flex:1; background:#1e1c1a; border:1px solid #3a352f; color:#d8d0c2; border-radius:9px; padding:10px 12px; font-size:14.5px; }
   .pc-input button { background:#a8906c; color:#1e1c1a; border:none; border-radius:9px; padding:0 20px; font-size:14.5px; }
+  /* ===== 账号 ===== */
+  #accChip { position:fixed; top:12px; right:12px; z-index:20; display:flex; align-items:center; gap:6px; background:#26231f; border:1px solid #3a352f; border-radius:20px; padding:5px 12px 5px 6px; color:#c9b896; font-size:12.5px; letter-spacing:1px; cursor:pointer; max-width:46vw; }
+  #accChip .acc-av { font-size:17px; }
+  #accMask { position:fixed; inset:0; background:rgba(0,0,0,.62); z-index:70; display:none; align-items:center; justify-content:center; }
+  #accMask.show { display:flex; }
+  #accSheet { width:88%; max-width:420px; background:#26231f; border-radius:16px; padding:18px 18px 16px; }
+  .acc-h { color:#c9b896; font-size:15px; letter-spacing:2px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; }
+  .acc-h .x { color:#8a7d6a; cursor:pointer; }
+  #accGrid { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; margin-bottom:14px; }
+  #accGrid .av { text-align:center; font-size:22px; padding:6px 0; border:1px solid transparent; border-radius:10px; cursor:pointer; }
+  #accGrid .av.on { border-color:#a8906c; background:rgba(168,144,108,.12); }
+  #accNick { width:100%; background:#1e1c1a; border:1px solid #3a352f; color:#d8d0c2; border-radius:9px; padding:10px 12px; font-size:14.5px; margin-bottom:12px; }
+  #accSave { width:100%; background:#a8906c; color:#1e1c1a; border:none; border-radius:9px; padding:11px; font-size:15px; letter-spacing:3px; }
+  /* ===== 段评增强 ===== */
+  .pc-item { display:flex; gap:9px; }
+  .pc-av { font-size:20px; line-height:1.5; flex:0 0 auto; }
+  .pc-body { flex:1; min-width:0; }
+  .pc-act { display:flex; gap:14px; align-items:center; margin-top:5px; }
+  .pc-act .pc-like, .pc-act .pc-re { color:#8a7d6a; font-size:12px; cursor:pointer; }
+  .pc-act .pc-like.on { color:#c9a86a; }
+  .pc-act .tm { color:#6f6557; font-size:11px; margin:0; }
+  .pc-me { color:#7d7160; font-size:10.5px; border:1px solid #4a4238; border-radius:8px; padding:0 5px; }
+  .pc-reply { margin-top:8px; padding-left:10px; border-left:2px solid #3a352f; border-bottom:none; }
+  #pcReplyHint { display:none; padding:7px 16px; color:#8a7d6a; font-size:12.5px; border-top:1px solid #302b25; }
+  #pcReplyHint span { color:#c9a86a; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -102,6 +127,33 @@
   <div class="reader-bottom">
     <span id="btnPrev" class="nav-btn">上一章</span>
     <span id="btnNext" class="nav-btn">下一章</span>
+  </div>
+</div>
+
+<!-- ===== 账号入口 ===== -->
+<div id="accChip" title="我的"><span class="acc-av">🐟</span>设置昵称</div>
+
+<!-- ===== 账号面板 ===== -->
+<div id="accMask">
+  <div id="accSheet">
+    <div class="acc-h"><span>我的身份</span><span class="x" id="accClose">关闭</span></div>
+    <div id="accGrid"></div>
+    <input id="accNick" type="text" maxlength="16" placeholder="起个昵称（最多16字）">
+    <button id="accSave">保存</button>
+  </div>
+</div>
+
+<!-- ===== 段评面板 ===== -->
+<div id="pcMask">
+  <div id="pcSheet">
+    <div class="pc-head"><span>段 评</span><span class="x" id="pcClose">关闭</span></div>
+    <div class="pc-quote" id="pcQuote"></div>
+    <div class="pc-list" id="pcList"></div>
+    <div id="pcReplyHint"></div>
+    <div class="pc-input">
+      <input id="pcText" type="text" maxlength="200" placeholder="说点什么…">
+      <button id="pcSend">发送</button>
+    </div>
   </div>
 </div>
 
@@ -337,27 +389,67 @@
     if (NOVEL.length === 0){ statusEl.textContent = '正文加载失败。'; }
   });
 
-  /* ============ 段评 ============ */
-  var PC_API = 'https://yuan-users.pages.dev/pc';
+  /* ============ 身份 / 账号 ============ */
+  var API = 'https://yuan-users.pages.dev';
+  var PC_API = API + '/pc';
+  var ACC_API = API + '/acc';
+  var AVATARS = ['🐟','🌾','🌙','🌿','🔥','🍵','🏮','⛰️','🐎','🌊','🕊️','🌰','🪶','🎋','🐓','🥟','🧧','🌻','🐦','🍂','🪷','☁️','⭐','🧵'];
+  var MY = { u: '', n: '', a: '' };
   var pcCache = {};
   var pcCur = null;
-  function uid(){
+  var pcReplyTo = '';
+  function uuidAnon(){
     var u = null;
     try { u = localStorage.getItem('xy_uid'); } catch(e){}
     if (!u){ u = 'u' + Math.random().toString(36).slice(2,10) + Date.now().toString(36); try { localStorage.setItem('xy_uid', u); } catch(e){} }
     return u;
   }
-  function uname(){
-    var n = null;
-    try { n = localStorage.getItem('xy_name'); } catch(e){}
-    if (!n){
-      var A = ['风','云','星','月','夜','雨','雪','林','山','灯','茶','喵','鹿','鲸','梅','松'];
-      var B = ['落','尘','光','影','声','色','听','语','见','眠','归','行','生','夏'];
-      n = A[Math.floor(Math.random()*A.length)] + B[Math.floor(Math.random()*B.length)] + String(Math.floor(Math.random()*90+10));
-      try { localStorage.setItem('xy_name', n); } catch(e){}
-    }
-    return n;
+  function fpFromUrl(){ try { var m = location.search.match(/[?&]fp=([0-9a-zA-Z_-]{8,64})/); return m ? m[1] : ''; } catch(e){ return ''; } }
+  function initIdentity(){
+    MY.u = fpFromUrl() || uuidAnon();
+    try { MY.n = localStorage.getItem('xy_name') || ''; MY.a = localStorage.getItem('xy_av') || ''; } catch(e){}
   }
+  function saveLocal(){ try { localStorage.setItem('xy_name', MY.n||''); localStorage.setItem('xy_av', MY.a||''); } catch(e){} }
+  function displayName(){
+    var A = ['风','云','星','月','夜','雨','雪','林','山','灯','茶','喵','鹿','鲸','梅','松'];
+    var B = ['落','尘','光','影','声','色','听','语','见','眠','归','行','生','夏'];
+    return A[Math.floor(Math.random()*A.length)] + B[Math.floor(Math.random()*B.length)] + String(Math.floor(Math.random()*90+10));
+  }
+  function avatarIdx(v){ var i = parseInt((v===undefined||v===null||v==='')?MY.a:v, 10); if (isNaN(i)||i<0||i>=AVATARS.length) i = 0; return i; }
+  function avatarOf(o){ return AVATARS[avatarIdx(o && o.a)]; }
+  function updateAccChip(){
+    var chip = document.getElementById('accChip'); if (!chip) return;
+    chip.innerHTML = '<span class="acc-av">' + avatarOf({a:MY.a}) + '</span>' + (MY.n ? esc(MY.n) : '设置昵称');
+  }
+  function loadAcc(){
+    if (!MY.u) return;
+    fetch(ACC_API + '?u=' + encodeURIComponent(MY.u), { cache:'no-store' })
+      .then(function(r){ return r.json(); })
+      .then(function(d){ if (d && d.ok){ if (d.n) MY.n = d.n; if (typeof d.a === 'string' && d.a !== '') MY.a = d.a; saveLocal(); } })
+      .catch(function(){}).then(updateAccChip);
+  }
+  function openAcc(){ document.getElementById('accNick').value = MY.n || ''; renderAvGrid(); document.getElementById('accMask').classList.add('show'); }
+  function closeAcc(){ document.getElementById('accMask').classList.remove('show'); }
+  function renderAvGrid(){
+    var el = document.getElementById('accGrid'); if (!el) return;
+    var cur = avatarIdx(MY.a), h = '';
+    for (var i = 0; i < AVATARS.length; i++){ h += '<span class="av' + (i === cur ? ' on' : '') + '" data-i="' + i + '">' + AVATARS[i] + '</span>'; }
+    el.innerHTML = h;
+  }
+  function saveAcc(){
+    var n = (document.getElementById('accNick').value || '').trim().slice(0, 16);
+    if (!n){ alert('请先填个昵称'); return; }
+    MY.n = n;
+    document.getElementById('accSave').disabled = true;
+    fetch(ACC_API, { method:'POST', headers:{ 'content-type':'application/json' }, cache:'no-store',
+      body: JSON.stringify({ u: MY.u, n: MY.n, a: String(avatarIdx(MY.a)) }) })
+      .then(function(r){ return r.json(); })
+      .then(function(d){ document.getElementById('accSave').disabled = false;
+        if (d && d.ok){ saveLocal(); updateAccChip(); closeAcc(); } else alert((d && d.err) || '保存失败'); })
+      .catch(function(){ document.getElementById('accSave').disabled = false; alert('网络错误'); });
+  }
+
+  /* ============ 段评 ============ */
   function pcKey(vi, ci){ return vi + '-' + ci; }
   function fetchPc(vi, ci){
     var k = pcKey(vi, ci);
@@ -383,9 +475,11 @@
   function openPc(pIdx){
     var f = FLAT[curIdx]; if (!f) return;
     pcCur = { vi: f.vi, ci: f.ci, p: pIdx };
+    pcReplyTo = '';
     var paras = NOVEL[f.vi].chapters[f.ci].paras;
     document.getElementById('pcQuote').textContent = (paras[pIdx] || '').slice(0, 90);
     document.getElementById('pcMask').classList.add('show');
+    setReplyHint();
     renderPcList();
   }
   function closePc(){ document.getElementById('pcMask').classList.remove('show'); }
@@ -393,18 +487,55 @@
     var d = new Date(t); function z(n){ return n < 10 ? '0' + n : '' + n; }
     return (d.getMonth()+1) + '-' + d.getDate() + ' ' + z(d.getHours()) + ':' + z(d.getMinutes());
   }
+  function setReplyHint(){
+    var el = document.getElementById('pcReplyHint'); if (!el) return;
+    if (!pcReplyTo){ el.style.display = 'none'; el.innerHTML = ''; return; }
+    var list = pcCache[pcKey(pcCur.vi, pcCur.ci)] || [], t = null;
+    for (var i = 0; i < list.length; i++){ if (list[i].id === pcReplyTo) t = list[i]; }
+    el.style.display = 'block';
+    el.innerHTML = '回复 @' + esc((t && t.n) || '读者') + ' · <span id="pcReplyCancel">取消</span>';
+    var c = document.getElementById('pcReplyCancel');
+    if (c) c.addEventListener('click', function(){ pcReplyTo = ''; setReplyHint(); });
+  }
+  function pcItemHtml(c, replies, depth){
+    var likes = c.likes || [], liked = false;
+    for (var i = 0; i < likes.length; i++){ if (likes[i] === MY.u) liked = true; }
+    var h = '<div class="pc-item' + (depth ? ' pc-reply' : '') + '">';
+    h += '<div class="pc-av">' + avatarOf(c) + '</div><div class="pc-body">';
+    h += '<div class="who">' + esc(c.n || '读者') + (liked ? ' <span class="pc-me">我</span>' : '') + '</div>';
+    h += '<div class="txt">' + esc(c.x || '') + '</div>';
+    h += '<div class="pc-act"><span class="pc-like' + (liked ? ' on' : '') + '" data-id="' + esc(c.id||'') + '">👍 ' + (likes.length || '') + '</span>';
+    h += '<span class="pc-re" data-id="' + esc(c.id||'') + '">回复</span><span class="tm">' + fmtTime(c.t||0) + '</span></div>';
+    for (var j = 0; j < (replies||[]).length; j++){ h += pcItemHtml(replies[j], [], depth + 1); }
+    h += '</div></div>';
+    return h;
+  }
   function renderPcList(){
     if (!pcCur) return;
-    var f = FLAT[curIdx];
     var list = (pcCache[pcKey(pcCur.vi, pcCur.ci)] || []).filter(function(c){ return (c.p | 0) === pcCur.p; });
     var el = document.getElementById('pcList');
     if (!list.length){ el.innerHTML = '<div class="pc-empty">这一段还没人评，来说两句</div>'; return; }
+    var byId = {}, byParent = {}, tops = [];
+    for (var i = 0; i < list.length; i++){ byId[list[i].id] = list[i]; }
+    for (var i = 0; i < list.length; i++){ var c = list[i]; if (c.parent && byId[c.parent]){ (byParent[c.parent] = byParent[c.parent] || []).push(c); } else { tops.push(c); } }
+    tops.sort(function(a,b){ return (a.t||0) - (b.t||0); });
     var h = '';
-    for (var i = 0; i < list.length; i++){
-      var c = list[i];
-      h += '<div class="pc-item"><div class="who">' + esc(c.n || '读者') + '</div><div class="txt">' + esc(c.x || '') + '</div><div class="tm">' + fmtTime(c.t || 0) + '</div></div>';
-    }
+    for (var i = 0; i < tops.length; i++){ h += pcItemHtml(tops[i], byParent[tops[i].id] || [], 0); }
     el.innerHTML = h;
+  }
+  function toggleLike(id){
+    if (!pcCur) return;
+    var list = pcCache[pcKey(pcCur.vi, pcCur.ci)] || [], c = null;
+    for (var i = 0; i < list.length; i++){ if (list[i].id === id) c = list[i]; }
+    if (!c) return;
+    var likes = c.likes = c.likes || [];
+    var k = likes.indexOf(MY.u); if (k >= 0) likes.splice(k, 1); else likes.push(MY.u);
+    renderPcList();
+    fetch(PC_API + '/like', { method:'POST', headers:{ 'content-type':'application/json' }, cache:'no-store',
+      body: JSON.stringify({ f: FILES[pcCur.vi], c: pcCur.ci, id: id, uid: MY.u }) })
+      .then(function(r){ return r.json(); })
+      .then(function(d){ if (d && d.ok && d.likes){ c.likes = d.likes; renderPcList(); } })
+      .catch(function(){});
   }
   function sendPc(){
     if (!pcCur) return;
@@ -412,14 +543,16 @@
     var x = (inp.value || '').trim();
     if (!x) return;
     if (x.length > 200) x = x.slice(0, 200);
+    if (!MY.n) MY.n = displayName();
     inp.disabled = true;
-    fetch(PC_API, { method:'POST', headers:{ 'content-type':'application/json' }, cache:'no-store',
-      body: JSON.stringify({ f: FILES[pcCur.vi], c: pcCur.ci, p: pcCur.p, x: x, n: uname(), u: uid() }) })
+    var payload = { f: FILES[pcCur.vi], c: pcCur.ci, p: pcCur.p, x: x, n: MY.n, a: String(avatarIdx(MY.a)), uid: MY.u };
+    if (pcReplyTo) payload.parent = pcReplyTo;
+    fetch(PC_API, { method:'POST', headers:{ 'content-type':'application/json' }, cache:'no-store', body: JSON.stringify(payload) })
       .then(function(r){ return r.json(); })
       .then(function(d){
         inp.disabled = false;
-        if (d && d.ok){ inp.value = ''; return fetchPc(pcCur.vi, pcCur.ci).then(function(){ renderPcList(); applyBadges(); }); }
-        alert((d && d.msg) || '发送失败');
+        if (d && d.ok){ inp.value = ''; pcReplyTo = ''; setReplyHint(); saveLocal(); return fetchPc(pcCur.vi, pcCur.ci).then(function(){ renderPcList(); applyBadges(); }); }
+        alert((d && d.msg) || (d && d.err) || '发送失败');
       })
       .catch(function(){ inp.disabled = false; alert('网络错误，稍后再试'); });
   }
@@ -427,20 +560,23 @@
   document.getElementById('pcMask').addEventListener('click', function(e){ if (e.target === this) closePc(); });
   document.getElementById('pcSend').addEventListener('click', sendPc);
   document.getElementById('pcText').addEventListener('keydown', function(e){ if (e.key === 'Enter') sendPc(); });
+  document.getElementById('pcList').addEventListener('click', function(e){
+    var t = e.target; if (!t || !t.className) return;
+    var cl = String(t.className);
+    if (cl.indexOf('pc-like') >= 0){ toggleLike(t.getAttribute('data-id')); }
+    else if (cl.indexOf('pc-re') >= 0){ pcReplyTo = t.getAttribute('data-id'); setReplyHint(); var i = document.getElementById('pcText'); if (i) i.focus(); }
+  });
+  document.getElementById('accChip').addEventListener('click', openAcc);
+  document.getElementById('accClose').addEventListener('click', closeAcc);
+  document.getElementById('accMask').addEventListener('click', function(e){ if (e.target === this) closeAcc(); });
+  document.getElementById('accSave').addEventListener('click', saveAcc);
+  document.getElementById('accGrid').addEventListener('click', function(e){
+    var t = e.target; if (t && t.className && String(t.className).indexOf('av') >= 0){ MY.a = t.getAttribute('data-i'); renderAvGrid(); }
+  });
+  initIdentity(); updateAccChip(); loadAcc();
+
 })();
 </script>
 
-<!-- ===== 段评面板 ===== -->
-<div id="pcMask">
-  <div id="pcSheet">
-    <div class="pc-head"><span>段 评</span><span class="x" id="pcClose">关闭</span></div>
-    <div class="pc-quote" id="pcQuote"></div>
-    <div class="pc-list" id="pcList"></div>
-    <div class="pc-input">
-      <input id="pcText" type="text" maxlength="200" placeholder="说点什么…">
-      <button id="pcSend">发送</button>
-    </div>
-  </div>
-</div>
 </body>
 </html>
