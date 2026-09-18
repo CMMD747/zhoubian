@@ -45,6 +45,25 @@
   .contact p { text-indent:0; margin-bottom:6px; color:#a8906c; font-size:15px; letter-spacing:3px; }
   .contact a { color:#c9a86a; text-decoration:none; border-bottom:1px dashed #a8906c; }
   .end { text-align:center; color:#8a7d6a; font-size:14px; margin-top:40px; letter-spacing:8px; }
+
+  /* ===== 段评 ===== */
+  #readerContent p { position: relative; }
+  .pcnt { display:inline-block; margin-left:8px; font-size:11.5px; color:#c9a86a; border:1px solid #4a4238; border-radius:10px; padding:1px 8px; vertical-align:middle; white-space:nowrap; opacity:.9; }
+  #pcMask { position:fixed; inset:0; background:rgba(0,0,0,.62); z-index:60; display:none; align-items:flex-end; justify-content:center; }
+  #pcMask.show { display:flex; }
+  #pcSheet { width:100%; max-width:640px; max-height:74vh; background:#26231f; border-top-left-radius:16px; border-top-right-radius:16px; display:flex; flex-direction:column; }
+  .pc-head { padding:13px 16px; border-bottom:1px solid #3a352f; color:#c9b896; font-size:14.5px; letter-spacing:2px; display:flex; justify-content:space-between; align-items:center; }
+  .pc-head .x { color:#8a7d6a; padding:2px 8px; cursor:pointer; }
+  .pc-quote { padding:10px 16px; color:#8a7d6a; font-size:13px; line-height:1.7; border-bottom:1px solid #302b25; max-height:76px; overflow:auto; }
+  .pc-list { flex:1; overflow-y:auto; padding:4px 16px 10px; }
+  .pc-item { padding:11px 0; border-bottom:1px dashed #302b25; }
+  .pc-item .who { color:#c9a86a; font-size:12.5px; margin-bottom:3px; }
+  .pc-item .txt { color:#d8d0c2; font-size:14.5px; line-height:1.7; word-break:break-word; }
+  .pc-item .tm { color:#6f6557; font-size:11px; margin-top:4px; }
+  .pc-empty { text-align:center; color:#7d7160; font-size:13px; padding:28px 0; }
+  .pc-input { display:flex; gap:8px; padding:10px 12px; border-top:1px solid #3a352f; }
+  .pc-input input { flex:1; background:#1e1c1a; border:1px solid #3a352f; color:#d8d0c2; border-radius:9px; padding:10px 12px; font-size:14.5px; }
+  .pc-input button { background:#a8906c; color:#1e1c1a; border:none; border-radius:9px; padding:0 20px; font-size:14.5px; }
 </style>
 </head>
 <body>
@@ -107,7 +126,7 @@
   var FLAT = [];
   var curIdx = -1;
 
-  function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'"'); }
+  function esc(s){ var A=String.fromCharCode(38); return s.replace(/&/g,A+'amp;').replace(/</g,A+'lt;').replace(/>/g,A+'gt;').replace(/"/g,A+'quot;'); }
 
   function parseVol(file, text){
     var lines = text.split(/\r?\n/);
@@ -186,12 +205,17 @@
     var fs = parseInt(localStorage.getItem(FONT_KEY) || '16', 10);
     var html = '<h3>' + esc(chap.title) + '</h3>';
     for (var i = 0; i < chap.paras.length; i++){
-      html += '<p>' + esc(chap.paras[i]) + '</p>';
+      html += '<p data-p="' + i + '">' + esc(chap.paras[i]) + '<span class="pcnt">评论</span></p>';
     }
     document.getElementById('readerContent').innerHTML = html;
     document.getElementById('readerContent').style.fontSize = fs + 'px';
     var ps = document.getElementById('readerContent').querySelectorAll('p');
     for (var k = 0; k < ps.length; k++){ ps[k].style.fontSize = fs + 'px'; }
+    for (var q = 0; q < ps.length; q++){
+      ps[q].addEventListener('click', function(){ openPc(parseInt(this.getAttribute('data-p'), 10)); });
+    }
+    var fpc = FLAT[curIdx];
+    fetchPc(fpc.vi, fpc.ci).then(function(){ if (curIdx === flatIndexOf(fpc.vi, fpc.ci)) applyBadges(); });
     document.getElementById('readerTitle').textContent = NOVEL[f.vi].title;
     document.getElementById('btnPrev').classList.toggle('disabled', curIdx <= 0);
     document.getElementById('btnNext').classList.toggle('disabled', curIdx >= FLAT.length - 1);
@@ -312,7 +336,111 @@
     updateContinue();
     if (NOVEL.length === 0){ statusEl.textContent = '正文加载失败。'; }
   });
+
+  /* ============ 段评 ============ */
+  var PC_API = 'https://yuan-users.pages.dev/pc';
+  var pcCache = {};
+  var pcCur = null;
+  function uid(){
+    var u = null;
+    try { u = localStorage.getItem('xy_uid'); } catch(e){}
+    if (!u){ u = 'u' + Math.random().toString(36).slice(2,10) + Date.now().toString(36); try { localStorage.setItem('xy_uid', u); } catch(e){} }
+    return u;
+  }
+  function uname(){
+    var n = null;
+    try { n = localStorage.getItem('xy_name'); } catch(e){}
+    if (!n){
+      var A = ['风','云','星','月','夜','雨','雪','林','山','灯','茶','喵','鹿','鲸','梅','松'];
+      var B = ['落','尘','光','影','声','色','听','语','见','眠','归','行','生','夏'];
+      n = A[Math.floor(Math.random()*A.length)] + B[Math.floor(Math.random()*B.length)] + String(Math.floor(Math.random()*90+10));
+      try { localStorage.setItem('xy_name', n); } catch(e){}
+    }
+    return n;
+  }
+  function pcKey(vi, ci){ return vi + '-' + ci; }
+  function fetchPc(vi, ci){
+    var k = pcKey(vi, ci);
+    return fetch(PC_API + '?f=' + encodeURIComponent(FILES[vi]) + '&c=' + ci, { cache:'no-store' })
+      .then(function(r){ return r.json(); })
+      .then(function(d){ var list = (d && d.ok && d.list) ? d.list : []; pcCache[k] = list; return list; })
+      .catch(function(){ pcCache[k] = pcCache[k] || []; return pcCache[k]; });
+  }
+  function pcCounts(list){ var m = {}; for (var i = 0; i < list.length; i++){ var p = list[i].p | 0; m[p] = (m[p] || 0) + 1; } return m; }
+  function applyBadges(){
+    var f = FLAT[curIdx]; if (!f) return;
+    var list = pcCache[pcKey(f.vi, f.ci)] || [];
+    var m = pcCounts(list);
+    var ps = document.getElementById('readerContent').querySelectorAll('p');
+    for (var i = 0; i < ps.length; i++){
+      var p = parseInt(ps[i].getAttribute('data-p'), 10);
+      var b = ps[i].querySelector('.pcnt');
+      if (!b) continue;
+      if (m[p]){ b.textContent = '💬 ' + m[p]; b.style.opacity = '.95'; }
+      else { b.textContent = '评论'; b.style.opacity = '.3'; }
+    }
+  }
+  function openPc(pIdx){
+    var f = FLAT[curIdx]; if (!f) return;
+    pcCur = { vi: f.vi, ci: f.ci, p: pIdx };
+    var paras = NOVEL[f.vi].chapters[f.ci].paras;
+    document.getElementById('pcQuote').textContent = (paras[pIdx] || '').slice(0, 90);
+    document.getElementById('pcMask').classList.add('show');
+    renderPcList();
+  }
+  function closePc(){ document.getElementById('pcMask').classList.remove('show'); }
+  function fmtTime(t){
+    var d = new Date(t); function z(n){ return n < 10 ? '0' + n : '' + n; }
+    return (d.getMonth()+1) + '-' + d.getDate() + ' ' + z(d.getHours()) + ':' + z(d.getMinutes());
+  }
+  function renderPcList(){
+    if (!pcCur) return;
+    var f = FLAT[curIdx];
+    var list = (pcCache[pcKey(pcCur.vi, pcCur.ci)] || []).filter(function(c){ return (c.p | 0) === pcCur.p; });
+    var el = document.getElementById('pcList');
+    if (!list.length){ el.innerHTML = '<div class="pc-empty">这一段还没人评，来说两句</div>'; return; }
+    var h = '';
+    for (var i = 0; i < list.length; i++){
+      var c = list[i];
+      h += '<div class="pc-item"><div class="who">' + esc(c.n || '读者') + '</div><div class="txt">' + esc(c.x || '') + '</div><div class="tm">' + fmtTime(c.t || 0) + '</div></div>';
+    }
+    el.innerHTML = h;
+  }
+  function sendPc(){
+    if (!pcCur) return;
+    var inp = document.getElementById('pcText');
+    var x = (inp.value || '').trim();
+    if (!x) return;
+    if (x.length > 200) x = x.slice(0, 200);
+    inp.disabled = true;
+    fetch(PC_API, { method:'POST', headers:{ 'content-type':'application/json' }, cache:'no-store',
+      body: JSON.stringify({ f: FILES[pcCur.vi], c: pcCur.ci, p: pcCur.p, x: x, n: uname(), u: uid() }) })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        inp.disabled = false;
+        if (d && d.ok){ inp.value = ''; return fetchPc(pcCur.vi, pcCur.ci).then(function(){ renderPcList(); applyBadges(); }); }
+        alert((d && d.msg) || '发送失败');
+      })
+      .catch(function(){ inp.disabled = false; alert('网络错误，稍后再试'); });
+  }
+  document.getElementById('pcClose').addEventListener('click', closePc);
+  document.getElementById('pcMask').addEventListener('click', function(e){ if (e.target === this) closePc(); });
+  document.getElementById('pcSend').addEventListener('click', sendPc);
+  document.getElementById('pcText').addEventListener('keydown', function(e){ if (e.key === 'Enter') sendPc(); });
 })();
 </script>
+
+<!-- ===== 段评面板 ===== -->
+<div id="pcMask">
+  <div id="pcSheet">
+    <div class="pc-head"><span>段 评</span><span class="x" id="pcClose">关闭</span></div>
+    <div class="pc-quote" id="pcQuote"></div>
+    <div class="pc-list" id="pcList"></div>
+    <div class="pc-input">
+      <input id="pcText" type="text" maxlength="200" placeholder="说点什么…">
+      <button id="pcSend">发送</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
