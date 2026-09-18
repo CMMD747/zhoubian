@@ -645,7 +645,7 @@
     for (var i = 0; i < likes.length; i++){ if (likes[i] === MY.u) liked = true; }
     var h = '<div class="pc-item' + (depth ? ' pc-reply' : '') + '">';
     h += '<div class="pc-av" style="border-color:' + ringOf(c) + '">' + avatarOf(c) + '</div><div class="pc-body">';
-    h += '<div class="who">' + esc(c.n || '读者') + (liked ? ' <span class="pc-me">我</span>' : '') + '</div>';
+    h += '<div class="who">' + esc(c.n || '读者') + (c.uid === MY.u ? ' <span class="pc-me">我</span>' : '') + '</div>';
     h += '<div class="txt">' + esc(c.x || '') + '</div>';
     h += '<div class="pc-act"><span class="pc-like' + (liked ? ' on' : '') + '" data-id="' + esc(c.id||'') + '">👍 ' + (likes.length || '') + '</span>';
     h += '<span class="pc-re" data-id="' + esc(c.id||'') + '">回复</span>';
