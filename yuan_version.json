@@ -1,1 +1,9 @@
-{"versionCode":213,"versionName":"2.1.3","apkUrl":"https://cmmd747.github.io/zhoubian/apk/yuan_v2.1.3.apk","updateLog":"","forceUpdate":true,"updatedAt":"2026-09-18 18:09","fileSize":"7.2 MB"}
+{
+  "versionCode": 216,
+  "versionName": "2.1.6",
+  "apkUrl": "https://cmmd747.github.io/zhoubian/apk/yuan_v2.1.6.apk",
+  "updateLog": "新增：小说段评（点赞/回复）、设备账号（昵称/头像）；修复：账号保存失败、弹层滚动穿透、自动回传误提示",
+  "forceUpdate": true,
+  "updatedAt": "2026-09-18 12:29",
+  "fileSize": "7.2 MB"
+}
