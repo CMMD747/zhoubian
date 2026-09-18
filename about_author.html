@@ -6,7 +6,7 @@
 <title>长篇小说 · 小源</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  body.mask-open { overflow:hidden; }
+  body.mask-open { position:fixed; left:0; right:0; width:100%; overflow:hidden; }
   body { font-family:"Songti SC","Noto Serif CJK SC","Source Han Serif SC","SimSun",serif; background:#1e1c1a; color:#c9c2b4; line-height:1.9; padding:28px 20px 60px; max-width:640px; margin:0 auto; }
   h1 { text-align:center; font-size:24px; color:#e8e0d2; letter-spacing:8px; margin:34px 0 10px; font-weight:600; }
   .subtitle { text-align:center; color:#8a7d6a; font-size:13px; letter-spacing:2px; margin-bottom:24px; border-bottom:1px solid #3a352f; padding-bottom:20px; }
@@ -195,7 +195,23 @@
     xyToastTimer = setTimeout(function(){ el.classList.remove('show'); }, 1900);
   }
   /* 弹层打开时锁住背景滚动（避免下层目录被拖动） */
-  function lockScroll(on){ try { document.body.classList[on ? 'add' : 'remove']('mask-open'); } catch(e){} }
+  var _lockY = 0;
+  function lockScroll(on){
+    try {
+      var b = document.body;
+      if (on){
+        if (b.classList.contains('mask-open')) return;
+        _lockY = window.scrollY || window.pageYOffset || 0;
+        b.style.top = '-' + _lockY + 'px';
+        b.classList.add('mask-open');
+      } else {
+        if (!b.classList.contains('mask-open')) return;
+        b.classList.remove('mask-open');
+        b.style.top = '';
+        window.scrollTo(0, _lockY);
+      }
+    } catch(e){}
+  }
 
   function parseVol(file, text){
     var lines = text.split(/\r?\n/);
